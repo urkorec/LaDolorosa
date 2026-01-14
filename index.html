@@ -166,7 +166,30 @@ select { background: var(--bg); border: none; border-radius: 6px; padding: 8px; 
   // Inicializar Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const dbRef = ref(db, 'session/dolorosa_global'); // Sala compartida
+
+  // --- SISTEMA DE SALA SECRETA ---
+  // 1. Miramos si ya hay una clave guardada en el móvil
+  let roomID = localStorage.getItem('dolorosa_room_id');
+
+  // 2. Si no hay clave, la pedimos
+  if (!roomID) {
+    roomID = prompt("🔒 CREAR O ENTRAR A GRUPO:\nInvéntate una clave secreta para tu grupo (ej: cena-paco-24):");
+    // Si el usuario cancela o lo deja vacío, usamos 'invitado'
+    if (!roomID) { 
+        roomID = "sala_invitado_" + Math.floor(Math.random() * 1000);
+        alert("⚠️ Estás en modo invitado (temporal). Para guardar datos con amigos, recarga y pon una clave común.");
+    } else {
+        // Limpiamos espacios y lo ponemos en minúsculas para evitar errores
+        roomID = roomID.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+        localStorage.setItem('dolorosa_room_id', roomID);
+    }
+  }
+
+  // 3. Conectamos a ESA sala específica
+  const dbRef = ref(db, 'session/' + roomID);
+  
+  // (Opcional) Mostrar en qué sala estás en la consola o título
+  console.log("Conectado a la sala:", roomID);
 
   // --- DATOS ---
   const ITEMS = [
