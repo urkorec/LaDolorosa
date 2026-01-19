@@ -308,19 +308,19 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
     <span class="landing-logo">💸</span>
     <h1 class="landing-title">¿Dónde estamos?</h1>
     
-    <button class="venue-btn" onclick="startApp('Club Ciclista Irunés')">
+    <button class="venue-btn" onclick="startApp('club')">
       <span>Club Ciclista Irunés</span>
-      <span>🍸</span>
+      <span>🚴</span>
     </button>
     
-    <button class="venue-btn" onclick="startApp('La Salle')">
+    <button class="venue-btn" onclick="startApp('lasalle')">
       <span>La Salle</span>
-      <span>🍺</span>
+      <span>🎓</span>
     </button>
     
-    <button class="venue-btn" onclick="startApp('Irungo Atsegiña')">
+    <button class="venue-btn" onclick="startApp('atsegina')">
       <span>Irungo Atsegiña</span>
-      <span>🍗</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"></path><line x1="6" y1="17" x2="18" y2="17"></line></svg>
     </button>
   </div>
 </div>
@@ -378,7 +378,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const ADMIN_CODE = "1522";
+const ADMIN_CODE = "1234";
+
+// --- DICCIONARIO DE NOMBRES ---
+const VENUE_NAMES = {
+  'club': 'Club Ciclista Irunés',
+  'lasalle': 'La Salle',
+  'atsegina': 'Irungo Atsegiña'
+};
 
 // --- MENÚ BASE POR DEFECTO ---
 const BASE_ITEMS = [
@@ -434,6 +441,7 @@ let CATEGORIES = {};
 let DB_PATH = '';
 let MENU_PATH = '';
 let CURRENT_VENUE = '';
+let CURRENT_VENUE_NAME = '';
 let isAdmin = false;
 let isInitialLoad = true; 
 
@@ -448,11 +456,11 @@ let state = {
 let UI_STATE = { general: new Set(), paxes: {} };
 
 // --- FUNCIÓN DE ARRANQUE ---
-window.startApp = function(venue) {
-  // Configurar según local elegido
-  CURRENT_VENUE = venue;
-  DB_PATH = `gastosPro_v4_${venue}`;
-  MENU_PATH = `menu_v4_${venue}`;
+window.startApp = function(venueId) {
+  CURRENT_VENUE = venueId;
+  CURRENT_VENUE_NAME = VENUE_NAMES[venueId];
+  DB_PATH = `gastosPro_v4_${venueId}`;
+  MENU_PATH = `menu_v4_${venueId}`;
   isInitialLoad = true; 
 
   document.getElementById('app-container').style.display = 'block';
@@ -545,7 +553,6 @@ function init() {
       
       buildCategories();
 
-      // Si ya hay datos cargados, refrescar vistas para que aparezca el contenido en General
       if(state.selections) {
           renderNav();
           renderAllViews();
@@ -578,14 +585,11 @@ function init() {
       
       if(Object.keys(CATEGORIES).length === 0) buildCategories();
 
-      // --- AL ENTRAR, SIEMPRE FORZAR PESTAÑA BALANCES (0) ---
       if(isInitialLoad) {
           state.activeTab = 0; 
           isInitialLoad = false;
-          // Guardar este estado reseteado para que sea consistente
           saveData(); 
       }
-      // -----------------------------------------------------
 
       renderNav();
       renderAllViews();
@@ -653,7 +657,7 @@ function softReset() {
 }
 
 function factoryReset() {
-  if(!confirm("🧨 ¿BORRAR TODO de " + CURRENT_VENUE.toUpperCase() + "?")) return;
+  if(!confirm("🧨 ¿BORRAR TODO de " + CURRENT_VENUE_NAME.toUpperCase() + "?")) return;
   remove(ref(db, DB_PATH));
   resetSelections();
   saveData();
@@ -699,8 +703,6 @@ function syncNameTab(idx, newName) {
 function setPayer(idx) {
   state.payerIdx = parseInt(idx);
   saveData();
-  
-  // Actualizar UI instantáneamente sin esperar a Firebase
   if(state.activeTab === 0) renderSummaryView();
 }
 
@@ -891,13 +893,23 @@ function renderEditorView() {
     container.innerHTML = html;
 }
 
-// --- FUNCIÓN DE VALIDACIÓN DE ERRORES LÓGICOS (MEJORADA 2.0) ---
+// --- FUNCIÓN DE VALIDACIÓN DE ERRORES LÓGICOS (MEJORADA 3.0) ---
 function getValidationWarnings() {
+    const warnings = [];
     const itemTracker = {}; 
 
-    // Paso 1: Calcular totales globales por item (solo Shared)
+    // 1. Detectar duplicados (una persona comparte el mismo item varias veces)
     state.selections.forEach((pax, pIdx) => {
         pax.forEach((item, iIdx) => {
+            if(item.shared && item.shared.length > 1) {
+                warnings.push({
+                    type: 'duplicate',
+                    name: ITEMS[iIdx].n,
+                    who: state.names[pIdx]
+                });
+            }
+            
+            // Recopilar datos para validación de decimales
             if(item.shared) {
                 item.shared.forEach(sh => {
                     if(sh.d > 0) {
@@ -909,17 +921,12 @@ function getValidationWarnings() {
         });
     });
 
-    const warnings = [];
-
-    // Paso 2: Analizar totales incorrectos
+    // 2. Detectar decimales incompletos
     for (const [iIdx, totalQty] of Object.entries(itemTracker)) {
         const remainder = Math.abs(totalQty - Math.round(totalQty));
         
-        // Si el total no cuadra (es decimal)...
         if (remainder > 0.05) { 
             const culprits = [];
-            
-            // Paso 3: Buscar quién tiene decimales en este item
             state.selections.forEach((pax, pIdx) => {
                 const item = pax[iIdx];
                 if(item && item.shared) {
@@ -929,7 +936,6 @@ function getValidationWarnings() {
                     });
                     
                     // Si lo que aporta este usuario NO es entero, es sospechoso
-                    // Ej: 0.33 vs 1.0
                     const userRem = Math.abs(userContribution - Math.round(userContribution));
                     if(userRem > 0.05) {
                         culprits.push(state.names[pIdx]);
@@ -939,6 +945,7 @@ function getValidationWarnings() {
 
             if (culprits.length > 0) {
                 warnings.push({
+                    type: 'decimal',
                     name: ITEMS[iIdx].n,
                     qty: totalQty.toFixed(2),
                     who: culprits.join(", ")
@@ -959,23 +966,34 @@ function renderSummaryView() {
   let warningsHtml = '';
   
   if (warnings.length > 0) {
-      const itemsHtml = warnings.map(w => `
-        <div class="alert-item">
-            <div class="alert-info">
-                <b>${w.name}</b>
-                <span class="alert-detail">Total actual: ${w.qty}</span>
-            </div>
-            <div class="alert-culprit">
-                Revisar a: ${w.who}
-            </div>
-        </div>
-      `).join('');
+      const itemsHtml = warnings.map(w => {
+          if(w.type === 'duplicate') {
+              return `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <b>${w.name}</b>
+                        <span class="alert-detail">⚠️ ${w.who} se ha puesto este artículo varias veces.</span>
+                    </div>
+                </div>`;
+          } else {
+              return `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <b>${w.name}</b>
+                        <span class="alert-detail">Total actual: ${w.qty}</span>
+                    </div>
+                    <div class="alert-culprit">
+                        Iniciado por: ${w.who}
+                    </div>
+                </div>`;
+          }
+      }).join('');
       
       warningsHtml = `
         <div class="alert-box">
             <div class="alert-header">
                 <span class="alert-icon">⚠️</span>
-                <span>Atención: Cuentas incompletas</span>
+                <span>Atención: Revisar cuentas</span>
             </div>
             <div class="alert-list">${itemsHtml}</div>
         </div>
@@ -1068,7 +1086,7 @@ function renderGlobalView() {
   container.innerHTML = `
     <div class="receipt-paper">
       <div class="receipt-header">
-        <h2>${CURRENT_VENUE.toUpperCase()}</h2>
+        <h2>${CURRENT_VENUE_NAME.toUpperCase()}</h2>
         <p>"Sarna con gusto no pica"</p>
         <p>Fecha: ${dateStr} - Hora: ${timeStr}</p>
         <p>Ticket No: ${Math.floor(Math.random() * 9000) + 1000}</p>
@@ -1282,7 +1300,7 @@ function getBillText() {
   const payer = state.names[state.payerIdx];
   const now = new Date();
   
-  let t = `🧾 *LA DOLOROSA - ${CURRENT_VENUE.toUpperCase()}* \n`;
+  let t = `🧾 *LA DOLOROSA - ${CURRENT_VENUE_NAME.toUpperCase()}* \n`;
   t += `📅 ${now.toLocaleDateString()}  🕒 ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n`;
   t += `──────────────────────\n`; 
   t += `💰 *TOTAL CUENTA:* ${calc.grandTotal.toFixed(2)}€\n`;
