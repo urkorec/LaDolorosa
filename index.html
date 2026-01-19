@@ -16,7 +16,7 @@
   --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
   --success: #10b981; --success-bg: #d1fae5;
   --danger: #ef4444; --danger-bg: #fee2e2;
-  --warning: #f59e0b; --warning-bg: #fef3c7;
+  --warning: #f59e0b; --warning-bg: #fffbeb;
   --radius: 16px;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
@@ -155,7 +155,7 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
 .new-item-title { font-weight: 800; font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
 .form-grid { display: grid; gap: 12px; }
 
-/* --- SELECTORES BONITOS (UPDATED) --- */
+/* --- SELECTORES BONITOS --- */
 .select-fancy {
   appearance: none; -webkit-appearance: none; 
   background-color: #fff; 
@@ -180,7 +180,6 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
   background-color: #fff; 
   box-shadow: 0 0 0 3px var(--primary-light);
 }
-/* Estilo específico para el selector pequeño "entre" */
 .select-compact {
   padding: 8px 30px 8px 12px;
   font-size: 13px;
@@ -226,6 +225,38 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .balance-detail-item:last-child { border-bottom: none; }
 .is-payer { background: var(--success-bg); border-color: #bbf7d0; }
 .is-debtor { background: var(--danger-bg); border-color: #fecaca; }
+
+/* ALERT BOX STYLING */
+.alert-box {
+  background-color: #fee2e2; 
+  border: 1px solid #fecaca;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+.alert-header {
+  display: flex; align-items: center; gap: 10px;
+  color: #991b1b; font-weight: 800; font-size: 15px;
+  margin-bottom: 12px;
+}
+.alert-icon { font-size: 20px; }
+.alert-list { display: flex; flex-direction: column; gap: 8px; }
+.alert-item {
+  background: #fff; border-left: 4px solid #ef4444;
+  padding: 12px; border-radius: 8px;
+  font-size: 13px; color: #7f1d1d;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.alert-info b { display: block; font-size: 14px; margin-bottom: 2px; color: #b91c1c; }
+.alert-culprit { 
+  background: #fee2e2; color: #991b1b; padding: 4px 10px; 
+  border-radius: 20px; font-weight: 700; font-size: 11px; text-transform: uppercase;
+}
 
 /* TICKET STYLE */
 .receipt-paper {
@@ -277,18 +308,18 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
     <span class="landing-logo">💸</span>
     <h1 class="landing-title">¿Dónde estamos?</h1>
     
-    <button class="venue-btn" onclick="startApp('aiur')">
-      <span>Aiur</span>
+    <button class="venue-btn" onclick="startApp('Club Ciclista Irunés')">
+      <span>Club Ciclista Irunés</span>
       <span>🍸</span>
     </button>
     
-    <button class="venue-btn" onclick="startApp('ekhi')">
-      <span>Ekhi</span>
+    <button class="venue-btn" onclick="startApp('La Salle')">
+      <span>La Salle</span>
       <span>🍺</span>
     </button>
     
-    <button class="venue-btn" onclick="startApp('galarza')">
-      <span>Galarza</span>
+    <button class="venue-btn" onclick="startApp('Irungo Atsegiña')">
+      <span>Irungo Atsegiña</span>
       <span>🍗</span>
     </button>
   </div>
@@ -350,7 +381,6 @@ const db = getDatabase(app);
 const ADMIN_CODE = "1522";
 
 // --- MENÚ BASE POR DEFECTO ---
-// Propiedad 'v': 'all' (ambos), 'pax' (solo participantes), 'common' (solo general)
 const BASE_ITEMS = [
   { cat: "🍷 Ardoak / Vinos", n: "Ardo beltza · Tinto", p: 3.50, v: 'all' },
   { cat: "🍷 Ardoak / Vinos", n: "Ardo gorria · Rosado", p: 3.50, v: 'all' },
@@ -405,7 +435,7 @@ let DB_PATH = '';
 let MENU_PATH = '';
 let CURRENT_VENUE = '';
 let isAdmin = false;
-let isInitialLoad = true; // Control de primera carga
+let isInitialLoad = true; 
 
 let state = {
   names: ["Persona 1", "Persona 2"], 
@@ -423,7 +453,7 @@ window.startApp = function(venue) {
   CURRENT_VENUE = venue;
   DB_PATH = `gastosPro_v4_${venue}`;
   MENU_PATH = `menu_v4_${venue}`;
-  isInitialLoad = true; // Resetear flag al entrar
+  isInitialLoad = true; 
 
   document.getElementById('app-container').style.display = 'block';
   setTimeout(() => document.getElementById('landing-page').style.opacity = '0', 50);
@@ -548,12 +578,14 @@ function init() {
       
       if(Object.keys(CATEGORIES).length === 0) buildCategories();
 
-      // --- LOGICA DE FORZADO DE PESTAÑA AL ENTRAR ---
+      // --- AL ENTRAR, SIEMPRE FORZAR PESTAÑA BALANCES (0) ---
       if(isInitialLoad) {
-          state.activeTab = 0; // Forzar Balances al entrar
+          state.activeTab = 0; 
           isInitialLoad = false;
+          // Guardar este estado reseteado para que sea consistente
+          saveData(); 
       }
-      // ---------------------------------------------
+      // -----------------------------------------------------
 
       renderNav();
       renderAllViews();
@@ -667,6 +699,9 @@ function syncNameTab(idx, newName) {
 function setPayer(idx) {
   state.payerIdx = parseInt(idx);
   saveData();
+  
+  // Actualizar UI instantáneamente sin esperar a Firebase
+  if(state.activeTab === 0) renderSummaryView();
 }
 
 function addParticipant() {
@@ -856,11 +891,99 @@ function renderEditorView() {
     container.innerHTML = html;
 }
 
+// --- FUNCIÓN DE VALIDACIÓN DE ERRORES LÓGICOS (MEJORADA 2.0) ---
+function getValidationWarnings() {
+    const itemTracker = {}; 
+
+    // Paso 1: Calcular totales globales por item (solo Shared)
+    state.selections.forEach((pax, pIdx) => {
+        pax.forEach((item, iIdx) => {
+            if(item.shared) {
+                item.shared.forEach(sh => {
+                    if(sh.d > 0) {
+                        if(!itemTracker[iIdx]) itemTracker[iIdx] = 0;
+                        itemTracker[iIdx] += (sh.q / sh.d);
+                    }
+                });
+            }
+        });
+    });
+
+    const warnings = [];
+
+    // Paso 2: Analizar totales incorrectos
+    for (const [iIdx, totalQty] of Object.entries(itemTracker)) {
+        const remainder = Math.abs(totalQty - Math.round(totalQty));
+        
+        // Si el total no cuadra (es decimal)...
+        if (remainder > 0.05) { 
+            const culprits = [];
+            
+            // Paso 3: Buscar quién tiene decimales en este item
+            state.selections.forEach((pax, pIdx) => {
+                const item = pax[iIdx];
+                if(item && item.shared) {
+                    let userContribution = 0;
+                    item.shared.forEach(sh => {
+                        if(sh.d > 0) userContribution += (sh.q / sh.d);
+                    });
+                    
+                    // Si lo que aporta este usuario NO es entero, es sospechoso
+                    // Ej: 0.33 vs 1.0
+                    const userRem = Math.abs(userContribution - Math.round(userContribution));
+                    if(userRem > 0.05) {
+                        culprits.push(state.names[pIdx]);
+                    }
+                }
+            });
+
+            if (culprits.length > 0) {
+                warnings.push({
+                    name: ITEMS[iIdx].n,
+                    qty: totalQty.toFixed(2),
+                    who: culprits.join(", ")
+                });
+            }
+        }
+    }
+    return warnings;
+}
+
 function renderSummaryView() {
   const container = document.getElementById('view-summary');
   const calc = calculateMath();
   const payerOpts = state.names.map((n, i) => `<option value="${i}" ${i === state.payerIdx ? 'selected' : ''}>${n}</option>`).join('');
+  
+  // Renderizar Alertas
+  const warnings = getValidationWarnings();
+  let warningsHtml = '';
+  
+  if (warnings.length > 0) {
+      const itemsHtml = warnings.map(w => `
+        <div class="alert-item">
+            <div class="alert-info">
+                <b>${w.name}</b>
+                <span class="alert-detail">Total actual: ${w.qty}</span>
+            </div>
+            <div class="alert-culprit">
+                Revisar a: ${w.who}
+            </div>
+        </div>
+      `).join('');
+      
+      warningsHtml = `
+        <div class="alert-box">
+            <div class="alert-header">
+                <span class="alert-icon">⚠️</span>
+                <span>Atención: Cuentas incompletas</span>
+            </div>
+            <div class="alert-list">${itemsHtml}</div>
+        </div>
+      `;
+  }
+
   let html = `
+    ${warningsHtml}
     <div class="card" style="padding:15px; border-left: 5px solid var(--primary)">
       <span style="font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;">¿Quién pagó la cuenta?</span>
       <select onchange="setPayer(this.value)" class="select-fancy" style="width:100%; margin-top:8px; padding:10px; font-size:16px;">${payerOpts}</select>
