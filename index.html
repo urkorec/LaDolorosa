@@ -1,212 +1,169 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#4f46e5">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>La Dolorosa</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"><meta name="theme-color" content="#4f46e5"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>La Dolorosa</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet"><style>
 :root {
-  --primary: #4f46e5; --primary-light: #e0e7ff; --primary-dark: #3730a3;
-  --bg: #f8fafc; --card: #ffffff;
-  --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
-  --success: #10b981; --success-bg: #d1fae5;
-  --danger: #ef4444; --danger-bg: #fee2e2;
-  --warning: #f59e0b; --warning-bg: #fffbeb;
-  --radius: 16px;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+ --primary: #4f46e5; --primary-light: #e0e7ff; --primary-dark: #3730a3;
+ --bg: #f8fafc; --card: #ffffff;
+ --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+ --success: #10b981; --success-bg: #d1fae5;
+ --danger: #ef4444; --danger-bg: #fee2e2;
+ --warning: #f59e0b; --warning-bg: #fffbeb;
+ --radius: 16px;
+ --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
-
 * { 
-  box-sizing: border-box; 
-  -webkit-tap-highlight-color: transparent; 
-  -webkit-touch-callout: none; 
-  user-select: none; 
-  -webkit-user-select: none;
+ box-sizing: border-box; 
+ -webkit-tap-highlight-color: transparent; 
+ -webkit-touch-callout: none; 
+ user-select: none; 
+ -webkit-user-select: none;
 }
-
 input, textarea, .receipt-paper { 
-  user-select: text !important; 
-  -webkit-user-select: text !important; 
+ user-select: text !important; 
+ -webkit-user-select: text !important; 
 }
-
 body { 
-  margin: 0; 
-  background: var(--bg); 
-  color: var(--text); 
-  font-family: 'Inter', sans-serif; 
-  font-size: 14px; 
-  overscroll-behavior-y: none; 
+ margin: 0; 
+ background: var(--bg); 
+ color: var(--text); 
+ font-family: 'Inter', sans-serif; 
+ font-size: 14px; 
+ overscroll-behavior-y: none; 
 }
-
-/* --- LANDING PAGE (SELECCIÓN) --- */
 #landing-page {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg); z-index: 5000;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 20px;
-  transition: opacity 0.3s ease;
+ position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+ background: var(--bg); z-index: 5000;
+ display: flex; flex-direction: column; align-items: center; justify-content: center;
+ padding: 20px;
+ transition: opacity 0.3s ease;
 }
 .landing-content { width: 100%; max-width: 400px; text-align: center; }
 .landing-logo { font-size: 60px; margin-bottom: 10px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 .landing-title { font-size: 28px; font-weight: 900; color: var(--text); margin: 0 0 30px 0; letter-spacing: -1px; }
 .venue-btn {
-  width: 100%; background: white; border: 1px solid var(--border); padding: 20px;
-  margin-bottom: 15px; border-radius: 20px; font-size: 18px; font-weight: 800;
-  color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer;
-  transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
+ width: 100%; background: white; border: 1px solid var(--border); padding: 20px;
+ margin-bottom: 15px; border-radius: 20px; font-size: 18px; font-weight: 800;
+ color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer;
+ transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
 }
 .venue-btn:active { transform: scale(0.98); background: var(--primary-light); }
 .venue-btn span:last-child { font-size: 26px; }
-
-/* --- APP PRINCIPAL --- */
 #app-container { display: none; padding-bottom: 140px; }
-
-/* HEADER */
 header {
-  background: var(--card); padding: 12px 20px; position: sticky; top: 0; z-index: 1000;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;
-  padding-top: env(safe-area-inset-top); height: 70px;
+ background: var(--card); padding: 12px 20px; position: sticky; top: 0; z-index: 1000;
+ box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;
+ padding-top: env(safe-area-inset-top); height: 70px;
 }
 .logo-container { display: flex; align-items: center; gap: 8px; cursor: pointer; transition: opacity 0.2s; }
 .logo-container:active { opacity: 0.6; }
 .back-arrow { color: var(--primary); margin-right: 4px; }
 .logo-icon { font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
 header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-
 .header-actions { display: flex; align-items: center; gap: 12px; }
-
-/* BOTÓN DE MODO EDICIÓN (LÁPIZ) */
 .btn-edit-toggle { 
-  background: none; border: none; cursor: pointer; padding: 8px;
-  color: var(--muted); transition: all 0.2s ease;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%;
+ background: none; border: none; cursor: pointer; padding: 8px;
+ color: var(--muted); transition: all 0.2s ease;
+ display: flex; align-items: center; justify-content: center;
+ border-radius: 50%;
 }
 .btn-edit-toggle:active { background-color: var(--bg); transform: scale(0.95); }
 .btn-edit-toggle.active { 
-  color: var(--primary); 
-  background-color: var(--primary-light); 
-  box-shadow: 0 0 0 1px var(--primary-light);
+ color: var(--primary); 
+ background-color: var(--primary-light); 
+ box-shadow: 0 0 0 1px var(--primary-light);
 }
-
 .total-badge { text-align: right; }
 .total-badge small { display: block; font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
 .total-badge div { font-size: 1.4rem; font-weight: 800; color: var(--text); line-height: 1.1; }
-
 .container { padding: 15px; margin: 0 auto; max-width: 800px; }
-
-/* NAVEGACIÓN */
 .nav-scroll {
-  display: flex; overflow-x: auto; gap: 10px; padding: 10px 20px;
-  position: sticky; top: 70px; z-index: 900; background: var(--bg);
-  margin: -15px -15px 15px -15px; -webkit-overflow-scrolling: touch;
-  cursor: grab; border-bottom: 1px solid rgba(0,0,0,0.05); scrollbar-width: none; 
+ display: flex; overflow-x: auto; gap: 10px; padding: 10px 20px;
+ position: sticky; top: 70px; z-index: 900; background: var(--bg);
+ margin: -15px -15px 15px -15px; -webkit-overflow-scrolling: touch;
+ cursor: grab; border-bottom: 1px solid rgba(0,0,0,0.05); scrollbar-width: none; 
 }
 .nav-scroll::-webkit-scrollbar { display: none; }
 .tab-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  white-space: nowrap; padding: 10px 18px; border-radius: 20px; border: 1px solid transparent;
-  background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s; flex-shrink: 0; 
+ display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+ white-space: nowrap; padding: 10px 18px; border-radius: 20px; border: 1px solid transparent;
+ background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px;
+ box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s; flex-shrink: 0; 
 }
 .tab-btn.active { background: var(--text); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transform: translateY(-1px); }
 .tab-btn-add { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-light); }
 .tab-btn-editor { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; display: none; }
 .tab-btn-editor.visible { display: inline-flex; }
-
-/* CARDS & UTILS */
 .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border); }
 .card-header { padding: 15px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .card-title { font-weight: 700; font-size: 15px; color: var(--text); }
 .hidden { display: none !important; }
-
-/* LIST ITEMS */
 .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px dashed var(--border); }
 .item-row:last-child { border-bottom: none; }
 .item-info b { display: block; font-size: 14px; }
 .item-info small { color: var(--muted); }
-
-/* EDITOR STYLES */
 .editor-section-title { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 0.5px; }
 .editor-card-item { padding: 12px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; background: #fff; }
 .editor-card-item:last-child { border-bottom: none; }
 .editor-inputs-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .editor-input-row { display: flex; gap: 8px; }
 .editor-input { 
-  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
-  font-family: 'Inter', sans-serif; font-size: 13px; width: 100%; background: #f8fafc;
-  transition: all 0.2s;
+ padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
+ font-family: 'Inter', sans-serif; font-size: 13px; width: 100%; background: #f8fafc;
+ transition: all 0.2s;
 }
 .editor-input:focus { outline: none; border-color: var(--primary); background: #fff; }
 .editor-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
 .btn-delete-item { 
-  color: var(--danger); background: var(--danger-bg); border: none; border-radius: 8px; 
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; 
+ color: var(--danger); background: var(--danger-bg); border: none; border-radius: 8px; 
+ width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; 
 }
 .btn-delete-item:active { transform: scale(0.95); }
-
-/* NEW ITEM FORM */
 .new-item-container { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 40px; }
 .new-item-title { font-weight: 800; font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
 .form-grid { display: grid; gap: 12px; }
-
-/* --- SELECTORES BONITOS --- */
 .select-fancy {
-  appearance: none; -webkit-appearance: none; 
-  background-color: #fff; 
-  border: 1px solid var(--border); 
-  border-radius: 12px;
-  padding: 12px 40px 12px 16px;
-  font-size: 14px; 
-  font-weight: 700; 
-  color: var(--text); 
-  cursor: pointer; 
-  width: 100%;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 16px;
-  transition: all 0.2s ease;
+ appearance: none; -webkit-appearance: none; 
+ background-color: #fff; 
+ border: 1px solid var(--border); 
+ border-radius: 12px;
+ padding: 12px 40px 12px 16px;
+ font-size: 14px; 
+ font-weight: 700; 
+ color: var(--text); 
+ cursor: pointer; 
+ width: 100%;
+ box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+ background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+ background-repeat: no-repeat;
+ background-position: right 14px center;
+ background-size: 16px;
+ transition: all 0.2s ease;
 }
 .select-fancy:focus { 
-  outline: none; 
-  border-color: var(--primary); 
-  background-color: #fff; 
-  box-shadow: 0 0 0 3px var(--primary-light);
+ outline: none; 
+ border-color: var(--primary); 
+ background-color: #fff; 
+ box-shadow: 0 0 0 3px var(--primary-light);
 }
 .select-compact {
-  padding: 8px 30px 8px 12px;
-  font-size: 13px;
-  background-position: right 10px center;
-  background-size: 14px;
+ padding: 8px 30px 8px 12px;
+ font-size: 13px;
+ background-position: right 10px center;
+ background-size: 14px;
 }
-
-/* GENERAL STYLES */
 .pax-header-input {
-  font-size: 18px; font-weight: 800; color: var(--primary);
-  border: 1px solid transparent; background: transparent; width: 100%;
-  outline: none; padding: 5px; border-radius: 6px; transition: all 0.2s ease;
-  font-family: 'Inter', sans-serif;
+ font-size: 18px; font-weight: 800; color: var(--primary);
+ border: 1px solid transparent; background: transparent; width: 100%;
+ outline: none; padding: 5px; border-radius: 6px; transition: all 0.2s ease;
+ font-family: 'Inter', sans-serif;
 }
 .pax-header-input:focus { background: var(--bg); border-color: var(--primary-light); color: var(--text); }
-
-/* STEPPER */
 .stepper { display: flex; align-items: center; background: var(--bg); border-radius: 10px; padding: 2px; }
 .stepper btn {
-  width: 40px; height: 36px; border: none; background: white; border-radius: 8px;
-  font-weight: 800; font-size: 18px; color: var(--primary); cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;
+ width: 40px; height: 36px; border: none; background: white; border-radius: 8px;
+ font-weight: 800; font-size: 18px; color: var(--primary); cursor: pointer;
+ box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;
 }
 .stepper btn:active { transform: scale(0.95); background: #e0e7ff; }
 .stepper span { min-width: 30px; text-align: center; font-weight: 700; font-size: 14px; }
-
-/* ACCORDION */
 details { border-bottom: 1px solid var(--border); transition: all 0.3s ease; }
 details:last-of-type { border-bottom: none; }
 summary { padding: 15px; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: #fff; }
@@ -215,8 +172,6 @@ summary::-webkit-details-marker { display: none; }
 summary::after { content: '+'; font-size: 18px; font-weight: 400; color: var(--muted); }
 details[open] summary::after { content: '-'; color: var(--primary); }
 details[open] summary { background: #fafafa; border-bottom: 1px solid var(--border); color: var(--primary); }
-
-/* RESUMEN DETALLADO */
 .balance-container details { border: none; margin-bottom: 10px; background:transparent; }
 .balance-container summary { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0; color: var(--text) !important; }
 .balance-container details[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 1px solid var(--border); background: #fff; }
@@ -225,49 +180,44 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .balance-detail-item:last-child { border-bottom: none; }
 .is-payer { background: var(--success-bg); border-color: #bbf7d0; }
 .is-debtor { background: var(--danger-bg); border-color: #fecaca; }
-
-/* ALERT BOX STYLING */
 .alert-box {
-  background-color: #fee2e2; 
-  border: 1px solid #fecaca;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
-  animation: fadeIn 0.3s ease-in;
+ background-color: #fee2e2; 
+ border: 1px solid #fecaca;
+ border-radius: 16px;
+ padding: 16px;
+ margin-bottom: 20px;
+ box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+ animation: fadeIn 0.3s ease-in;
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
 .alert-header {
-  display: flex; align-items: center; gap: 10px;
-  color: #991b1b; font-weight: 800; font-size: 15px;
-  margin-bottom: 12px;
+ display: flex; align-items: center; gap: 10px;
+ color: #991b1b; font-weight: 800; font-size: 15px;
+ margin-bottom: 12px;
 }
 .alert-icon { font-size: 20px; }
 .alert-list { display: flex; flex-direction: column; gap: 8px; }
 .alert-item {
-  background: #fff; border-left: 4px solid #ef4444;
-  padding: 12px; border-radius: 8px;
-  font-size: 13px; color: #7f1d1d;
-  display: flex; justify-content: space-between; align-items: center;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+ background: #fff; border-left: 4px solid #ef4444;
+ padding: 12px; border-radius: 8px;
+ font-size: 13px; color: #7f1d1d;
+ display: flex; justify-content: space-between; align-items: center;
+ box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 .alert-info b { display: block; font-size: 14px; margin-bottom: 2px; color: #b91c1c; }
 .alert-culprit { 
-  background: #fee2e2; color: #991b1b; padding: 4px 10px; 
-  border-radius: 20px; font-weight: 700; font-size: 11px; text-transform: uppercase;
+ background: #fee2e2; color: #991b1b; padding: 4px 10px; 
+ border-radius: 20px; font-weight: 700; font-size: 11px; text-transform: uppercase;
 }
-
-/* TICKET STYLE */
 .receipt-paper {
-  background: #fff; width: 100%; max-width: 360px; margin: 10px auto; padding: 20px;
-  font-family: 'Courier New', Courier, monospace; color: #222; position: relative;
-  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+ background: #fff; width: 100%; max-width: 360px; margin: 10px auto; padding: 20px;
+ font-family: 'Courier New', Courier, monospace; color: #222; position: relative;
+ filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
 }
 .receipt-paper::after {
-  content: ""; position: absolute; left: 0; bottom: -10px; width: 100%; height: 10px;
-  background-image: linear-gradient(135deg, transparent 50%, #fff 50%), linear-gradient(45deg, #fff 50%, transparent 50%);
-  background-position: top left, top right; background-size: 10px 10px; background-repeat: repeat-x;
+ content: ""; position: absolute; left: 0; bottom: -10px; width: 100%; height: 10px;
+ background-image: linear-gradient(135deg, transparent 50%, #fff 50%), linear-gradient(45deg, #fff 50%, transparent 50%);
+ background-position: top left, top right; background-size: 10px 10px; background-repeat: repeat-x;
 }
 .receipt-header { text-align: center; margin-bottom: 20px; }
 .receipt-header h2 { font-size: 28px; margin: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #000; }
@@ -279,14 +229,11 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .receipt-total { margin-top: 15px; border-top: 2px solid #222; border-bottom: 2px solid #222; padding: 10px 0; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; }
 .receipt-footer { text-align: center; margin-top: 20px; font-size: 11px; color: #555; }
 .barcode { height: 30px; background: repeating-linear-gradient(90deg, #222, #222 2px, transparent 2px, transparent 4px, #222 4px, #222 8px); margin: 15px auto; width: 80%; opacity: 0.8; }
-
-/* BUTTONS */
 .fab-container { position: fixed; bottom: 25px; right: 25px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .fab-btn { padding: 12px 20px; border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.1s, background 0.2s; font-size: 14px; }
 .fab-btn:active { transform: scale(0.95); }
 .fab-share { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); }
 .fab-copy { background: var(--text); color: white; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.4); }
-
 .btn-action { width: 100%; padding: 18px; margin-top: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; transition: all 0.2s ease; border: none; position: relative; overflow: hidden; }
 .btn-action:active { transform: scale(0.98); }
 .btn-reset { background: #f1f5f9; color: #475569; box-shadow: 0 2px 0 #cbd5e1; }
@@ -295,146 +242,77 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .btn-factory:active { box-shadow: none; transform: translateY(2px); }
 .btn-delete-pax { background: var(--danger-bg); border: none; color: var(--danger); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
 .btn-delete-pax:hover { background: #fecaca; }
-
 .split-row { margin-top: 8px; background: #fff; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); display: flex; gap: 8px; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-
 .general-banner { background: var(--warning-bg); color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; border: 1px solid #fcd34d; display: flex; align-items: center; gap: 10px; }
-</style>
-</head>
-<body>
-
-<div id="landing-page">
-  <div class="landing-content">
-    <span class="landing-logo">💸</span>
-    <h1 class="landing-title">¿Dónde estamos?</h1>
-    
-    <button class="venue-btn" onclick="startApp('club')">
-      <span>Club Ciclista Irunés</span>
-      <span>🚴</span>
-    </button>
-    
-    <button class="venue-btn" onclick="startApp('lasalle')">
-      <span>La Salle</span>
-      <span>🎓</span>
-    </button>
-    
-    <button class="venue-btn" onclick="startApp('atsegina')">
-      <span>Irungo Atsegiña</span>
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"></path><line x1="6" y1="17" x2="18" y2="17"></line></svg>
-    </button>
-  </div>
-</div>
-
-<div id="app-container">
-  <header>
-    <div class="logo-container" onclick="goBack()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="back-arrow"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-      <span class="logo-icon">💸</span>
-      <h1 style="font-size:1.2rem; line-height:1;">La <span style="color:var(--text)">Dolorosa</span></h1>
-    </div>
-    
-    <div class="header-actions">
-        <button id="btnEditMode" class="btn-edit-toggle" onclick="toggleAdminMode()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-        </button>
-        <div class="total-badge">
-          <small>A PAGAR</small>
-          <div id="headerTotal">0.00€</div>
-        </div>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="nav-scroll" id="navContainer"></div>
-    <div id="views"></div>
-  </div>
-
-  <div class="fab-container hidden" id="actionButtons">
-    <button class="fab-btn fab-copy" id="btnCopy" onclick="copyBill()">
-      <span>📋 Copiar</span>
-    </button>
-    <button class="fab-btn fab-share" onclick="shareNative()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-      <span>Compartir</span>
-    </button>
-  </div>
-</div>
-
-<script type="module">
+</style></head><body><div id="landing-page"><div class="landing-content"><span class="landing-logo">💸</span><h1 class="landing-title">¿Dónde estamos?</h1><button class="venue-btn" onclick="startApp('club')"><span>Club Ciclista Irunés</span><span>🚴</span></button><button class="venue-btn" onclick="startApp('lasalle')"><span>La Salle</span><span>🎓</span></button><button class="venue-btn" onclick="startApp('atsegina')"><span>Irungo Atsegiña</span><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"></path><line x1="6" y1="17" x2="18" y2="17"></line></svg></button></div></div><div id="app-container"><header><div class="logo-container" onclick="goBack()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="back-arrow"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg><span class="logo-icon">💸</span><h1 style="font-size:1.2rem; line-height:1;">La <span style="color:var(--text)">Dolorosa</span></h1></div><div class="header-actions"><button id="btnEditMode" class="btn-edit-toggle" onclick="toggleAdminMode()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button><div class="total-badge"><small>A PAGAR</small><div id="headerTotal">0.00€</div></div></div></header><div class="container"><div class="nav-scroll" id="navContainer"></div><div id="views"></div></div><div class="fab-container hidden" id="actionButtons"><button class="fab-btn fab-copy" id="btnCopy" onclick="copyBill()"><span>📋 Copiar</span></button><button class="fab-btn fab-share" onclick="shareNative()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg><span>Compartir</span></button></div></div><script type="module">
 // --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue, off, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
 const firebaseConfig = {
-  apiKey: "AIzaSyAcmywgX6l4x_dTnmA1c_CbtAh7LfSx4vg",
-  authDomain: "la-dolorosa-68870.firebaseapp.com",
-  databaseURL: "https://la-dolorosa-68870-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "la-dolorosa-68870",
-  storageBucket: "la-dolorosa-68870.firebasestorage.app",
-  messagingSenderId: "387013198617",
-  appId: "1:387013198617:web:91910b92149292fe913b88"
+ apiKey: "AIzaSyAcmywgX6l4x_dTnmA1c_CbtAh7LfSx4vg",
+ authDomain: "la-dolorosa-68870.firebaseapp.com",
+ databaseURL: "https://la-dolorosa-68870-default-rtdb.europe-west1.firebasedatabase.app",
+ projectId: "la-dolorosa-68870",
+ storageBucket: "la-dolorosa-68870.firebasestorage.app",
+ messagingSenderId: "387013198617",
+ appId: "1:387013198617:web:91910b92149292fe913b88"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 const ADMIN_CODE = "1234";
-
 // --- DICCIONARIO DE NOMBRES ---
 const VENUE_NAMES = {
-  'club': 'Club Ciclista Irunés',
-  'lasalle': 'La Salle',
-  'atsegina': 'Irungo Atsegiña'
+ 'club': 'Club Ciclista Irunés',
+ 'lasalle': 'La Salle',
+ 'atsegina': 'Irungo Atsegiña'
 };
-
 // --- MENÚ BASE POR DEFECTO ---
 const BASE_ITEMS = [
-  { cat: "🍷 Ardoak / Vinos", n: "Ardo beltza · Tinto", p: 3.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Ardo gorria · Rosado", p: 3.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Rueda Bitacora", p: 4.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Crianza Glorioso", p: 7.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Cuarto crianza", p: 5.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Txakoli", p: 7.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Moscato", p: 5.00, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Sagardoa · Sidra", p: 3.00, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Cava", p: 10.00, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Descorche / Kanpoko", p: 2.50, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "San Miguel/Estrella", p: 1.30, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Daura", p: 1.80, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Voll-Damm", p: 1.50, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "0,0", p: 1.30, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Radler", p: 1.20, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Alhambra", p: 2.00, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Coca-Cola", p: 1.20, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Kas Laranja/Limoia", p: 1.00, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Tónica Schweppes", p: 1.50, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Aquarius", p: 1.50, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Ura · Agua", p: 0.60, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Kafea · Café", p: 1.20, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Kafeinagabeko", p: 1.20, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Cola Cao", p: 1.00, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Esne · Leche", p: 1.00, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Infusioak", p: 1.00, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Patxarana", p: 2.50, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Uxual Krema", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Ginebra Beefeater", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Ron Habana/Barceló", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Vodka Smirnoff/Absolut", p: 2.50, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Cointreau", p: 2.70, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Torres 10", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Armagnac", p: 3.70, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Whisky J.B.", p: 2.60, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Belar/Hierbas", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Jägermeister", p: 2.50, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Olioa · Aceite", p: 2.00, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Ongailuak", p: 0.50, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Tupper", p: 0.25, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Gasa (15min)", p: 1.80, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Bazkaria · Comida", p: 3.00, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Afaria · Cena", p: 3.00, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Merienda", p: 2.50, v: 'all' }
+ { cat: "🍷 Ardoak / Vinos", n: "Ardo beltza · Tinto", p: 3.50, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Ardo gorria · Rosado", p: 3.50, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Rueda Bitacora", p: 4.50, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Crianza Glorioso", p: 7.50, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Cuarto crianza", p: 5.50, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Txakoli", p: 7.50, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Moscato", p: 5.00, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Sagardoa · Sidra", p: 3.00, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Cava", p: 10.00, v: 'all' },
+ { cat: "🍷 Ardoak / Vinos", n: "Descorche / Kanpoko", p: 2.50, v: 'all' },
+ { cat: "🍺 Garagardoak / Cervezas", n: "San Miguel/Estrella", p: 1.30, v: 'all' },
+ { cat: "🍺 Garagardoak / Cervezas", n: "Daura", p: 1.80, v: 'all' },
+ { cat: "🍺 Garagardoak / Cervezas", n: "Voll-Damm", p: 1.50, v: 'all' },
+ { cat: "🍺 Garagardoak / Cervezas", n: "0,0", p: 1.30, v: 'all' },
+ { cat: "🍺 Garagardoak / Cervezas", n: "Radler", p: 1.20, v: 'all' },
+ { cat: "🍺 Garagardoak / Cervezas", n: "Alhambra", p: 2.00, v: 'all' },
+ { cat: "🥤 Freskagarriak / Refrescos", n: "Coca-Cola", p: 1.20, v: 'all' },
+ { cat: "🥤 Freskagarriak / Refrescos", n: "Kas Laranja/Limoia", p: 1.00, v: 'all' },
+ { cat: "🥤 Freskagarriak / Refrescos", n: "Tónica Schweppes", p: 1.50, v: 'all' },
+ { cat: "🥤 Freskagarriak / Refrescos", n: "Aquarius", p: 1.50, v: 'all' },
+ { cat: "🥤 Freskagarriak / Refrescos", n: "Ura · Agua", p: 0.60, v: 'all' },
+ { cat: "☕ Kafeak / Cafés", n: "Kafea · Café", p: 1.20, v: 'all' },
+ { cat: "☕ Kafeak / Cafés", n: "Kafeinagabeko", p: 1.20, v: 'all' },
+ { cat: "☕ Kafeak / Cafés", n: "Cola Cao", p: 1.00, v: 'all' },
+ { cat: "☕ Kafeak / Cafés", n: "Esne · Leche", p: 1.00, v: 'all' },
+ { cat: "☕ Kafeak / Cafés", n: "Infusioak", p: 1.00, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Patxarana", p: 2.50, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Uxual Krema", p: 2.20, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Ginebra Beefeater", p: 2.20, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Ron Habana/Barceló", p: 2.20, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Vodka Smirnoff/Absolut", p: 2.50, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Cointreau", p: 2.70, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Torres 10", p: 2.20, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Armagnac", p: 3.70, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Whisky J.B.", p: 2.60, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Belar/Hierbas", p: 2.20, v: 'all' },
+ { cat: "🍸 Likoreak / Licores", n: "Jägermeister", p: 2.50, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Olioa · Aceite", p: 2.00, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Ongailuak", p: 0.50, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Tupper", p: 0.25, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Gasa (15min)", p: 1.80, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Bazkaria · Comida", p: 3.00, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Afaria · Cena", p: 3.00, v: 'all' },
+ { cat: "🍳 Sukaldea / Cocina", n: "Merienda", p: 2.50, v: 'all' }
 ];
-
 // Variables dinámicas
 let ITEMS = [];
 let CATEGORIES = {};
@@ -444,947 +322,730 @@ let CURRENT_VENUE = '';
 let CURRENT_VENUE_NAME = '';
 let isAdmin = false;
 let isInitialLoad = true; 
-
 let state = {
-  names: ["Persona 1", "Persona 2"], 
-  selections: [], 
-  common: [], 
-  payerIdx: 0,
-  activeTab: 0 
+ names: ["Persona 1", "Persona 2"], 
+ selections: [], 
+ common: [], 
+ payerIdx: 0,
+ activeTab: 0 
 };
-
 let UI_STATE = { general: new Set(), paxes: {} };
-
 // --- FUNCIÓN DE ARRANQUE ---
 window.startApp = function(venueId) {
-  CURRENT_VENUE = venueId;
-  CURRENT_VENUE_NAME = VENUE_NAMES[venueId];
-  DB_PATH = `gastosPro_v4_${venueId}`;
-  MENU_PATH = `menu_v4_${venueId}`;
-  isInitialLoad = true; 
-
-  document.getElementById('app-container').style.display = 'block';
-  setTimeout(() => document.getElementById('landing-page').style.opacity = '0', 50);
-  setTimeout(() => document.getElementById('landing-page').style.display = 'none', 300);
-
-  init();
+ CURRENT_VENUE = venueId;
+ CURRENT_VENUE_NAME = VENUE_NAMES[venueId];
+ DB_PATH = `gastosPro_v4_${venueId}`;
+ MENU_PATH = `menu_v4_${venueId}`;
+ isInitialLoad = true; 
+ document.getElementById('app-container').style.display = 'block';
+ setTimeout(() => document.getElementById('landing-page').style.opacity = '0', 50);
+ setTimeout(() => document.getElementById('landing-page').style.display = 'none', 300);
+ init();
 }
-
 // --- VOLVER AL MENÚ (SIN BORRAR DATOS) ---
 window.goBack = function() {
-  if(DB_PATH) off(ref(db, DB_PATH));
-  if(MENU_PATH) off(ref(db, MENU_PATH));
-
-  isAdmin = false;
-  document.getElementById('btnEditMode').classList.remove('active');
-  document.getElementById('tab-btn-editor').classList.remove('visible');
-
-  document.getElementById('landing-page').style.display = 'flex';
-  setTimeout(() => document.getElementById('landing-page').style.opacity = '1', 50);
-  document.getElementById('app-container').style.display = 'none';
+ if(DB_PATH) off(ref(db, DB_PATH));
+ if(MENU_PATH) off(ref(db, MENU_PATH));
+ isAdmin = false;
+ document.getElementById('btnEditMode').classList.remove('active');
+ document.getElementById('tab-btn-editor').classList.remove('visible');
+ document.getElementById('landing-page').style.display = 'flex';
+ setTimeout(() => document.getElementById('landing-page').style.opacity = '1', 50);
+ document.getElementById('app-container').style.display = 'none';
 }
-
 window.toggleAdminMode = function() {
-    if(isAdmin) {
-        isAdmin = false;
-        document.getElementById('btnEditMode').classList.remove('active');
-        document.getElementById('tab-btn-editor').classList.remove('visible');
-        if(state.activeTab === 99) switchTab(0);
-    } else {
-        const code = prompt("🔑 Código de Administrador:");
-        if(code === ADMIN_CODE) {
-            isAdmin = true;
-            document.getElementById('btnEditMode').classList.add('active');
-            document.getElementById('tab-btn-editor').classList.add('visible');
-            alert("Modo Edición Activado");
-        } else if(code !== null) {
-            alert("Código incorrecto");
-        }
-    }
+ if(isAdmin) {
+ isAdmin = false;
+ document.getElementById('btnEditMode').classList.remove('active');
+ document.getElementById('tab-btn-editor').classList.remove('visible');
+ if(state.activeTab === 99) switchTab(0);
+ } else {
+ const code = prompt("🔑 Código de Administrador:");
+ if(code === ADMIN_CODE) {
+ isAdmin = true;
+ document.getElementById('btnEditMode').classList.add('active');
+ document.getElementById('tab-btn-editor').classList.add('visible');
+ alert("Modo Edición Activado");
+ } else if(code !== null) {
+ alert("Código incorrecto");
+ }
+ }
 }
-
 // --- LOGICA DEL SISTEMA ---
 function captureUiState() {
-  const genView = document.getElementById('view-general');
-  if(genView) {
-    UI_STATE.general = new Set();
-    genView.querySelectorAll('details[open] summary').forEach(el => UI_STATE.general.add(el.innerText.trim()));
-  }
-  state.names.forEach((_, i) => {
-    const pView = document.getElementById(`view-pax-${i}`);
-    if(pView) {
-      UI_STATE.paxes[i] = new Set();
-      pView.querySelectorAll('details[open] summary').forEach(el => UI_STATE.paxes[i].add(el.innerText.trim()));
-    }
-  });
+ const genView = document.getElementById('view-general');
+ if(genView) {
+ UI_STATE.general = new Set();
+ genView.querySelectorAll('details[open] summary').forEach(el => UI_STATE.general.add(el.innerText.trim()));
+ }
+ state.names.forEach((_, i) => {
+ const pView = document.getElementById(`view-pax-${i}`);
+ if(pView) {
+ UI_STATE.paxes[i] = new Set();
+ pView.querySelectorAll('details[open] summary').forEach(el => UI_STATE.paxes[i].add(el.innerText.trim()));
+ }
+ });
 }
-
 function saveData() {
-  if(!DB_PATH) return;
-  set(ref(db, DB_PATH), state).catch(err => console.error(err));
+ if(!DB_PATH) return;
+ set(ref(db, DB_PATH), state).catch(err => console.error(err));
 }
-
 function saveMenu() {
-    if(!MENU_PATH) return;
-    set(ref(db, MENU_PATH), ITEMS).catch(err => console.error(err));
+ if(!MENU_PATH) return;
+ set(ref(db, MENU_PATH), ITEMS).catch(err => console.error(err));
 }
-
 function buildCategories() {
-    CATEGORIES = {};
-    ITEMS.forEach((it, i) => { 
-        if(!CATEGORIES[it.cat]) CATEGORIES[it.cat] = []; 
-        CATEGORIES[it.cat].push({...it, idx: i}); 
-    });
+ CATEGORIES = {};
+ ITEMS.forEach((it, i) => { 
+ if(!CATEGORIES[it.cat]) CATEGORIES[it.cat] = []; 
+ CATEGORIES[it.cat].push({...it, idx: i}); 
+ });
 }
-
 function init() {
-  document.body.style.minHeight = window.innerHeight + "px";
-  enableDragScroll(); 
-
-  // 1. CARGAR MENÚ DEL LOCAL
-  onValue(ref(db, MENU_PATH), (snapshot) => {
-      const menuData = snapshot.val();
-      if(menuData) {
-          ITEMS = menuData;
-      } else {
-          ITEMS = JSON.parse(JSON.stringify(BASE_ITEMS));
-          saveMenu();
-      }
-      
-      buildCategories();
-
-      if(state.selections) {
-          renderNav();
-          renderAllViews();
-      }
-  });
-
-  // 2. CARGAR GASTOS
-  onValue(ref(db, DB_PATH), (snapshot) => {
-    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT')) {
-        const data = snapshot.val();
-        if(data) state = data;
-        updateCalculations(); 
-        return; 
-    }
-
-    captureUiState();
-    const data = snapshot.val();
-    if(data) {
-      state = data;
-      if(!state.selections) state.selections = [];
-      if(!state.common) state.common = new Array(ITEMS.length).fill(0);
-      
-      if(state.common.length < ITEMS.length) {
-         const diff = ITEMS.length - state.common.length;
-         for(let k=0; k<diff; k++) state.common.push(0);
-         state.selections.forEach(sel => {
-            for(let k=0; k<diff; k++) sel.push({ solo: 0, shared: [] });
-         });
-      }
-      
-      if(Object.keys(CATEGORIES).length === 0) buildCategories();
-
-      if(isInitialLoad) {
-          state.activeTab = 0; 
-          isInitialLoad = false;
-          saveData(); 
-      }
-
-      renderNav();
-      renderAllViews();
-      updateCalculations();
-
-    } else {
-      resetSelections();
-      saveData();
-      switchTab(0);
-    }
-  });
+ document.body.style.minHeight = window.innerHeight + "px";
+ enableDragScroll(); 
+ // 1. CARGAR MENÚ DEL LOCAL
+ onValue(ref(db, MENU_PATH), (snapshot) => {
+ const menuData = snapshot.val();
+ if(menuData) {
+ ITEMS = menuData;
+ } else {
+ ITEMS = JSON.parse(JSON.stringify(BASE_ITEMS));
+ saveMenu();
+ }
+ 
+ buildCategories();
+ if(state.selections) {
+ renderNav();
+ renderAllViews();
+ }
+ });
+ // 2. CARGAR GASTOS
+ onValue(ref(db, DB_PATH), (snapshot) => {
+ if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT')) {
+ const data = snapshot.val();
+ if(data) state = data;
+ updateCalculations(); 
+ return; 
+ }
+ captureUiState();
+ const data = snapshot.val();
+ if(data) {
+ state = data;
+ if(!state.selections) state.selections = [];
+ if(!state.common) state.common = new Array(ITEMS.length).fill(0);
+ 
+ if(state.common.length < ITEMS.length) {
+ const diff = ITEMS.length - state.common.length;
+ for(let k=0; k<diff; k++) state.common.push(0);
+ state.selections.forEach(sel => {
+ for(let k=0; k<diff; k++) sel.push({ solo: 0, shared: [] });
+ });
+ }
+ 
+ if(Object.keys(CATEGORIES).length === 0) buildCategories();
+ if(isInitialLoad) {
+ state.activeTab = 0; 
+ isInitialLoad = false;
+ saveData(); 
+ }
+ renderNav();
+ renderAllViews();
+ updateCalculations();
+ } else {
+ resetSelections();
+ saveData();
+ switchTab(0);
+ }
+ });
 }
-
 // FUNCIONES EDITOR
 window.updateItemProp = function(idx, key, val) {
-    if(key === 'p') val = parseFloat(val);
-    ITEMS[idx][key] = val;
-    saveMenu();
+ if(key === 'p') val = parseFloat(val);
+ ITEMS[idx][key] = val;
+ saveMenu();
 }
-
 window.deleteItem = function(idx) {
-    if(!confirm("¿Borrar " + ITEMS[idx].n + "?")) return;
-    ITEMS.splice(idx, 1);
-    state.common.splice(idx, 1);
-    state.selections.forEach(sel => sel.splice(idx, 1));
-    saveMenu();
-    saveData();
+ if(!confirm("¿Borrar " + ITEMS[idx].n + "?")) return;
+ ITEMS.splice(idx, 1);
+ state.common.splice(idx, 1);
+ state.selections.forEach(sel => sel.splice(idx, 1));
+ saveMenu();
+ saveData();
 }
-
 window.addNewItem = function() {
-    const name = document.getElementById('new-name').value;
-    const price = parseFloat(document.getElementById('new-price').value);
-    const cat = document.getElementById('new-cat').value;
-    const vis = document.getElementById('new-vis').value;
-    
-    if(name && price && cat) {
-        ITEMS.push({ n: name, p: price, cat: cat, v: vis });
-        state.common.push(0);
-        state.selections.forEach(sel => sel.push({ solo: 0, shared: [] }));
-        
-        saveMenu();
-        saveData();
-        
-        document.getElementById('new-name').value = '';
-        document.getElementById('new-price').value = '';
-        alert("Artículo añadido con éxito");
-    } else {
-        alert("Rellena todos los campos");
-    }
+ const name = document.getElementById('new-name').value;
+ const price = parseFloat(document.getElementById('new-price').value);
+ const cat = document.getElementById('new-cat').value;
+ const vis = document.getElementById('new-vis').value;
+ 
+ if(name && price && cat) {
+ ITEMS.push({ n: name, p: price, cat: cat, v: vis });
+ state.common.push(0);
+ state.selections.forEach(sel => sel.push({ solo: 0, shared: [] }));
+ 
+ saveMenu();
+ saveData();
+ 
+ document.getElementById('new-name').value = '';
+ document.getElementById('new-price').value = '';
+ alert("Artículo añadido con éxito");
+ } else {
+ alert("Rellena todos los campos");
+ }
 }
-
 // ... FUNCIONES CORE ...
 function resetSelections() {
-  state.selections = state.names.map(() => ITEMS.map(() => ({ solo: 0, shared: [] })));
-  state.common = new Array(ITEMS.length).fill(0);
-  state.activeTab = 0;
+ state.selections = state.names.map(() => ITEMS.map(() => ({ solo: 0, shared: [] })));
+ state.common = new Array(ITEMS.length).fill(0);
+ state.activeTab = 0;
 }
-
 function softReset() {
-  if(!confirm("🔄 ¿Poner contadores a cero?")) return;
-  resetSelections();
-  state.payerIdx = 0;
-  saveData();
-  switchTab(0);
+ if(!confirm("🔄 ¿Poner contadores a cero?")) return;
+ resetSelections();
+ state.payerIdx = 0;
+ saveData();
+ switchTab(0);
 }
-
 function factoryReset() {
-  if(!confirm("🧨 ¿BORRAR TODO de " + CURRENT_VENUE_NAME.toUpperCase() + "?")) return;
-  remove(ref(db, DB_PATH));
-  resetSelections();
-  saveData();
-  switchTab(0);
+ if(!confirm("🧨 ¿BORRAR TODO de " + CURRENT_VENUE_NAME.toUpperCase() + "?")) return;
+ remove(ref(db, DB_PATH));
+ resetSelections();
+ saveData();
+ switchTab(0);
 }
-
 function updateVal(paxIdx, itemIdx, delta) {
-  const current = state.selections[paxIdx][itemIdx].solo || 0;
-  state.selections[paxIdx][itemIdx].solo = Math.max(0, current + delta);
-  saveData();
+ const current = state.selections[paxIdx][itemIdx].solo || 0;
+ state.selections[paxIdx][itemIdx].solo = Math.max(0, current + delta);
+ saveData();
 }
-
 function updateCommon(itemIdx, delta) {
-  const current = state.common[itemIdx] || 0;
-  state.common[itemIdx] = Math.max(0, current + delta);
-  saveData();
+ const current = state.common[itemIdx] || 0;
+ state.common[itemIdx] = Math.max(0, current + delta);
+ saveData();
 }
-
 function addShared(paxIdx, itemIdx) {
-  if (!state.selections[paxIdx][itemIdx].shared) state.selections[paxIdx][itemIdx].shared = [];
-  state.selections[paxIdx][itemIdx].shared.push({ q: 1, d: state.names.length });
-  saveData();
+ if (!state.selections[paxIdx][itemIdx].shared) state.selections[paxIdx][itemIdx].shared = [];
+ state.selections[paxIdx][itemIdx].shared.push({ q: 1, d: state.names.length });
+ saveData();
 }
-
 function updateShared(paxIdx, itemIdx, shareIdx, key, val) {
-  const item = state.selections[paxIdx][itemIdx].shared[shareIdx];
-  if(key === 'q') item.q = Math.max(0, item.q + val);
-  if(key === 'd') item.d = parseInt(val);
-  if(item.q === 0 && key === 'q') state.selections[paxIdx][itemIdx].shared.splice(shareIdx, 1);
-  saveData();
+ const item = state.selections[paxIdx][itemIdx].shared[shareIdx];
+ if(key === 'q') item.q = Math.max(0, item.q + val);
+ if(key === 'd') item.d = parseInt(val);
+ if(item.q === 0 && key === 'q') state.selections[paxIdx][itemIdx].shared.splice(shareIdx, 1);
+ saveData();
 }
-
 function updateName(idx, newName) {
-  state.names[idx] = newName;
-  saveData(); 
+ state.names[idx] = newName;
+ saveData(); 
 }
-
 function syncNameTab(idx, newName) {
-  const btn = document.getElementById(`tab-btn-${idx + 3}`);
-  if(btn) btn.innerText = newName || `Persona ${idx + 1}`;
+ const btn = document.getElementById(`tab-btn-${idx + 3}`);
+ if(btn) btn.innerText = newName || `Persona ${idx + 1}`;
 }
-
 function setPayer(idx) {
-  state.payerIdx = parseInt(idx);
-  saveData();
-  if(state.activeTab === 0) renderSummaryView();
+ state.payerIdx = parseInt(idx);
+ saveData();
+ if(state.activeTab === 0) renderSummaryView();
 }
-
 function addParticipant() {
-  state.names.push(`Persona ${state.names.length + 1}`);
-  state.selections.push(ITEMS.map(() => ({ solo: 0, shared: [] })));
-  saveData();
-  switchTab(state.names.length + 2);
+ state.names.push(`Persona ${state.names.length + 1}`);
+ state.selections.push(ITEMS.map(() => ({ solo: 0, shared: [] })));
+ saveData();
+ switchTab(state.names.length + 2);
 }
-
 function removeParticipant(idx) {
-  if(state.names.length <= 2) return alert("Mínimo 2 personas.");
-  if(!confirm("¿Borrar a " + state.names[idx] + "?")) return;
-  state.names.splice(idx, 1);
-  state.selections.splice(idx, 1);
-  if(state.payerIdx >= state.names.length) state.payerIdx = 0;
-  saveData();
-  switchTab(0);
+ if(state.names.length <= 2) return alert("Mínimo 2 personas.");
+ if(!confirm("¿Borrar a " + state.names[idx] + "?")) return;
+ state.names.splice(idx, 1);
+ state.selections.splice(idx, 1);
+ if(state.payerIdx >= state.names.length) state.payerIdx = 0;
+ saveData();
+ switchTab(0);
 }
-
 function renderNav() {
-  const nav = document.getElementById('navContainer');
-  nav.innerHTML = '';
-   
-  const btnSum = document.createElement('button');
-  btnSum.className = `tab-btn ${state.activeTab === 0 ? 'active' : ''}`;
-  btnSum.innerText = '📊 Balances';
-  btnSum.onclick = () => switchTab(0);
-  nav.appendChild(btnSum);
-
-  const btnTicket = document.createElement('button');
-  btnTicket.className = `tab-btn ${state.activeTab === 1 ? 'active' : ''}`;
-  btnTicket.innerText = '🧾 Ticket';
-  btnTicket.onclick = () => switchTab(1);
-  nav.appendChild(btnTicket);
-
-  const btnGen = document.createElement('button');
-  btnGen.className = `tab-btn ${state.activeTab === 2 ? 'active' : ''}`;
-  btnGen.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-    General
-  `;
-  btnGen.onclick = () => switchTab(2);
-  nav.appendChild(btnGen);
-  
-  const btnEdit = document.createElement('button');
-  btnEdit.id = 'tab-btn-editor';
-  btnEdit.className = `tab-btn tab-btn-editor ${isAdmin ? 'visible' : ''} ${state.activeTab === 99 ? 'active' : ''}`;
-  btnEdit.innerText = '✏️ Editor';
-  btnEdit.onclick = () => switchTab(99);
-  nav.appendChild(btnEdit);
-
-  state.names.forEach((name, i) => {
-    const btn = document.createElement('button');
-    btn.className = `tab-btn ${state.activeTab === i + 3 ? 'active' : ''}`; 
-    btn.id = `tab-btn-${i+3}`;
-    btn.innerText = name;
-    btn.onclick = () => switchTab(i + 3);
-    nav.appendChild(btn);
-  });
-
-  const btnAdd = document.createElement('button');
-  btnAdd.className = 'tab-btn tab-btn-add';
-  btnAdd.innerText = '+ Persona';
-  btnAdd.onclick = addParticipant;
-  nav.appendChild(btnAdd);
+ const nav = document.getElementById('navContainer');
+ nav.innerHTML = '';
+ 
+ const btnSum = document.createElement('button');
+ btnSum.className = `tab-btn ${state.activeTab === 0 ? 'active' : ''}`;
+ btnSum.innerText = '📊 Balances';
+ btnSum.onclick = () => switchTab(0);
+ nav.appendChild(btnSum);
+ const btnTicket = document.createElement('button');
+ btnTicket.className = `tab-btn ${state.activeTab === 1 ? 'active' : ''}`;
+ btnTicket.innerText = '🧾 Ticket';
+ btnTicket.onclick = () => switchTab(1);
+ nav.appendChild(btnTicket);
+ const btnGen = document.createElement('button');
+ btnGen.className = `tab-btn ${state.activeTab === 2 ? 'active' : ''}`;
+ btnGen.innerHTML = `
+ <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+ General
+ `;
+ btnGen.onclick = () => switchTab(2);
+ nav.appendChild(btnGen);
+ 
+ const btnEdit = document.createElement('button');
+ btnEdit.id = 'tab-btn-editor';
+ btnEdit.className = `tab-btn tab-btn-editor ${isAdmin ? 'visible' : ''} ${state.activeTab === 99 ? 'active' : ''}`;
+ btnEdit.innerText = '✏️ Editor';
+ btnEdit.onclick = () => switchTab(99);
+ nav.appendChild(btnEdit);
+ state.names.forEach((name, i) => {
+ const btn = document.createElement('button');
+ btn.className = `tab-btn ${state.activeTab === i + 3 ? 'active' : ''}`; 
+ btn.id = `tab-btn-${i+3}`;
+ btn.innerText = name;
+ btn.onclick = () => switchTab(i + 3);
+ nav.appendChild(btn);
+ });
+ const btnAdd = document.createElement('button');
+ btnAdd.className = 'tab-btn tab-btn-add';
+ btnAdd.innerText = '+ Persona';
+ btnAdd.onclick = addParticipant;
+ nav.appendChild(btnAdd);
 }
-
 function switchTab(tabIdx) {
-  state.activeTab = tabIdx;
-  const navBtns = document.getElementById('navContainer').children;
-  [...navBtns].forEach((btn, i) => {
-     if(btn.id === 'tab-btn-editor') {
-         btn.classList.toggle('active', tabIdx === 99);
-     } else {
-         btn.classList.remove('active');
-     }
-  });
-  
-  const targetBtn = (tabIdx === 0) ? navBtns[0] : 
-                    (tabIdx === 1) ? navBtns[1] : 
-                    (tabIdx === 2) ? navBtns[2] :
-                    document.getElementById(`tab-btn-${tabIdx}`);
-  if(targetBtn) targetBtn.classList.add('active');
-
-  const views = document.getElementById('views').children;
-  [...views].forEach(v => v.classList.add('hidden'));
-
-  if(tabIdx === 0) document.getElementById('view-summary').classList.remove('hidden');
-  else if(tabIdx === 1) document.getElementById('view-global').classList.remove('hidden');
-  else if(tabIdx === 2) document.getElementById('view-general').classList.remove('hidden');
-  else if(tabIdx === 99) document.getElementById('view-editor').classList.remove('hidden');
-  else {
-      const pDiv = document.getElementById(`view-pax-${tabIdx-3}`);
-      if(pDiv) pDiv.classList.remove('hidden');
-  }
-
-  if(tabIdx === 0) renderSummaryView();
-  if(tabIdx === 1) renderGlobalView();
-  if(tabIdx === 2) renderGeneralView();
-  if(tabIdx === 99) renderEditorView();
-  
-  document.getElementById('actionButtons').classList.toggle('hidden', tabIdx !== 0);
+ state.activeTab = tabIdx;
+ const navBtns = document.getElementById('navContainer').children;
+ [...navBtns].forEach((btn, i) => {
+ if(btn.id === 'tab-btn-editor') {
+ btn.classList.toggle('active', tabIdx === 99);
+ } else {
+ btn.classList.remove('active');
+ }
+ });
+ 
+ const targetBtn = (tabIdx === 0) ? navBtns[0] : 
+ (tabIdx === 1) ? navBtns[1] : 
+ (tabIdx === 2) ? navBtns[2] :
+ document.getElementById(`tab-btn-${tabIdx}`);
+ if(targetBtn) targetBtn.classList.add('active');
+ const views = document.getElementById('views').children;
+ [...views].forEach(v => v.classList.add('hidden'));
+ if(tabIdx === 0) document.getElementById('view-summary').classList.remove('hidden');
+ else if(tabIdx === 1) document.getElementById('view-global').classList.remove('hidden');
+ else if(tabIdx === 2) document.getElementById('view-general').classList.remove('hidden');
+ else if(tabIdx === 99) document.getElementById('view-editor').classList.remove('hidden');
+ else {
+ const pDiv = document.getElementById(`view-pax-${tabIdx-3}`);
+ if(pDiv) pDiv.classList.remove('hidden');
+ }
+ if(tabIdx === 0) renderSummaryView();
+ if(tabIdx === 1) renderGlobalView();
+ if(tabIdx === 2) renderGeneralView();
+ if(tabIdx === 99) renderEditorView();
+ 
+ document.getElementById('actionButtons').classList.toggle('hidden', tabIdx !== 0);
 }
-
 function renderAllViews() {
-  const container = document.getElementById('views');
-  container.innerHTML = '';
-   
-  const sumDiv = document.createElement('div'); sumDiv.id = 'view-summary'; container.appendChild(sumDiv);
-  const globalDiv = document.createElement('div'); globalDiv.id = 'view-global'; globalDiv.classList.add('hidden'); container.appendChild(globalDiv);
-  const genDiv = document.createElement('div'); genDiv.id = 'view-general'; genDiv.classList.add('hidden'); container.appendChild(genDiv);
-  const editDiv = document.createElement('div'); editDiv.id = 'view-editor'; editDiv.classList.add('hidden'); container.appendChild(editDiv);
-
-  state.names.forEach((_, i) => {
-    const pDiv = document.createElement('div');
-    pDiv.id = `view-pax-${i}`;
-    pDiv.classList.add('hidden');
-    container.appendChild(pDiv);
-    renderParticipantView(i);
-  });
-  
-  switchTab(state.activeTab);
+ const container = document.getElementById('views');
+ container.innerHTML = '';
+ 
+ const sumDiv = document.createElement('div'); sumDiv.id = 'view-summary'; container.appendChild(sumDiv);
+ const globalDiv = document.createElement('div'); globalDiv.id = 'view-global'; globalDiv.classList.add('hidden'); container.appendChild(globalDiv);
+ const genDiv = document.createElement('div'); genDiv.id = 'view-general'; genDiv.classList.add('hidden'); container.appendChild(genDiv);
+ const editDiv = document.createElement('div'); editDiv.id = 'view-editor'; editDiv.classList.add('hidden'); container.appendChild(editDiv);
+ state.names.forEach((_, i) => {
+ const pDiv = document.createElement('div');
+ pDiv.id = `view-pax-${i}`;
+ pDiv.classList.add('hidden');
+ container.appendChild(pDiv);
+ renderParticipantView(i);
+ });
+ 
+ switchTab(state.activeTab);
 }
-
 function renderEditorView() {
-    const container = document.getElementById('view-editor');
-    const uniqueCats = [...new Set(ITEMS.map(i => i.cat))];
-    const catOptions = uniqueCats.map(c => `<option value="${c}">${c}</option>`).join('');
-
-    let html = `
-      <div class="new-item-container">
-          <div class="new-item-title">✨ Añadir Nuevo Producto</div>
-          <div class="form-grid">
-              <input type="text" id="new-name" class="editor-input" placeholder="Nombre (ej: Croquetas)">
-              <div style="display:flex; gap:10px;">
-                  <input type="number" id="new-price" class="editor-input" placeholder="Precio (€)" step="0.01">
-                  <select id="new-vis" class="select-fancy">
-                      <option value="all">Ver en: Ambos</option>
-                      <option value="pax">Ver en: Participantes</option>
-                      <option value="common">Ver en: General</option>
-                  </select>
-              </div>
-              <select id="new-cat" class="select-fancy" style="background-color:#f8fafc">
-                  ${catOptions}
-                  <option value="🆕 Otros">🆕 Otros</option>
-              </select>
-              <button class="btn-action" style="background:var(--primary); color:white; margin-top:5px; padding:12px" onclick="addNewItem()">+ AÑADIR AHORA</button>
-          </div>
-      </div>
-    `;
-
-    // Renderizar categorías
-    for(const [cat, items] of Object.entries(CATEGORIES)) {
-        html += `<div class="editor-section-title">${cat}</div>`;
-        html += `<div class="card" style="margin-bottom:20px;">`;
-        items.forEach(item => {
-            const visLabel = (item.v === 'pax') ? '👤 Pax' : (item.v === 'common') ? '🌍 Gen' : '👥 Todo';
-            const visColor = (item.v === 'pax') ? '#dbeafe' : (item.v === 'common') ? '#fef3c7' : '#f1f5f9';
-            
-            html += `
-                <div class="editor-card-item">
-                    <div class="editor-inputs-group">
-                        <input type="text" class="editor-input" value="${item.n}" onchange="updateItemProp(${item.idx}, 'n', this.value)" style="font-weight:600">
-                        <div class="editor-input-row">
-                             <input type="number" class="editor-input" value="${item.p}" step="0.01" onchange="updateItemProp(${item.idx}, 'p', this.value)" style="width:70px">
-                             <select class="editor-input" onchange="updateItemProp(${item.idx}, 'v', this.value)" style="background:${visColor}; border:none;">
-                                <option value="all" ${!item.v || item.v==='all'?'selected':''}>Todo</option>
-                                <option value="pax" ${item.v==='pax'?'selected':''}>Solo Pax</option>
-                                <option value="common" ${item.v==='common'?'selected':''}>Solo Gen</option>
-                             </select>
-                        </div>
-                    </div>
-                    <div class="editor-actions">
-                        <button class="btn-delete-item" onclick="deleteItem(${item.idx})">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        html += `</div>`;
-    }
-    
-    // Espacio final
-    html += `<div style="height:50px"></div>`;
-    
-    container.innerHTML = html;
+ const container = document.getElementById('view-editor');
+ const uniqueCats = [...new Set(ITEMS.map(i => i.cat))];
+ const catOptions = uniqueCats.map(c => `<option value="${c}">${c}</option>`).join('');
+ let html = `
+ <div class="new-item-container"><div class="new-item-title">✨ Añadir Nuevo Producto</div><div class="form-grid"><input type="text" id="new-name" class="editor-input" placeholder="Nombre (ej: Croquetas)"><div style="display:flex; gap:10px;"><input type="number" id="new-price" class="editor-input" placeholder="Precio (€)" step="0.01"><select id="new-vis" class="select-fancy"><option value="all">Ver en: Ambos</option><option value="pax">Ver en: Participantes</option><option value="common">Ver en: General</option></select></div><select id="new-cat" class="select-fancy" style="background-color:#f8fafc">
+ ${catOptions}
+ <option value="🆕 Otros">🆕 Otros</option></select><button class="btn-action" style="background:var(--primary); color:white; margin-top:5px; padding:12px" onclick="addNewItem()">+ AÑADIR AHORA</button></div></div>
+ `;
+ // Renderizar categorías
+ for(const [cat, items] of Object.entries(CATEGORIES)) {
+ html += `<div class="editor-section-title">${cat}</div>`;
+ html += `<div class="card" style="margin-bottom:20px;">`;
+ items.forEach(item => {
+ const visLabel = (item.v === 'pax') ? '👤 Pax' : (item.v === 'common') ? '🌍 Gen' : '👥 Todo';
+ const visColor = (item.v === 'pax') ? '#dbeafe' : (item.v === 'common') ? '#fef3c7' : '#f1f5f9';
+ 
+ html += `
+ <div class="editor-card-item"><div class="editor-inputs-group"><input type="text" class="editor-input" value="${item.n}" onchange="updateItemProp(${item.idx}, 'n', this.value)" style="font-weight:600"><div class="editor-input-row"><input type="number" class="editor-input" value="${item.p}" step="0.01" onchange="updateItemProp(${item.idx}, 'p', this.value)" style="width:70px"><select class="editor-input" onchange="updateItemProp(${item.idx}, 'v', this.value)" style="background:${visColor}; border:none;"><option value="all" ${!item.v || item.v==='all'?'selected':''}>Todo</option><option value="pax" ${item.v==='pax'?'selected':''}>Solo Pax</option><option value="common" ${item.v==='common'?'selected':''}>Solo Gen</option></select></div></div><div class="editor-actions"><button class="btn-delete-item" onclick="deleteItem(${item.idx})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></div>
+ `;
+ });
+ html += `</div>`;
+ }
+ 
+ // Espacio final
+ html += `<div style="height:50px"></div>`;
+ 
+ container.innerHTML = html;
 }
-
 // --- FUNCIÓN DE VALIDACIÓN DE ERRORES LÓGICOS (MEJORADA 3.0) ---
 function getValidationWarnings() {
-    const warnings = [];
-    const itemTracker = {}; 
-
-    // 1. Detectar duplicados (una persona comparte el mismo item varias veces)
-    state.selections.forEach((pax, pIdx) => {
-        pax.forEach((item, iIdx) => {
-            if(item.shared && item.shared.length > 1) {
-                warnings.push({
-                    type: 'duplicate',
-                    name: ITEMS[iIdx].n,
-                    who: state.names[pIdx]
-                });
-            }
-            
-            // Recopilar datos para validación de decimales
-            if(item.shared) {
-                item.shared.forEach(sh => {
-                    if(sh.d > 0) {
-                        if(!itemTracker[iIdx]) itemTracker[iIdx] = 0;
-                        itemTracker[iIdx] += (sh.q / sh.d);
-                    }
-                });
-            }
-        });
-    });
-
-    // 2. Detectar decimales incompletos
-    for (const [iIdx, totalQty] of Object.entries(itemTracker)) {
-        const remainder = Math.abs(totalQty - Math.round(totalQty));
-        
-        if (remainder > 0.05) { 
-            const culprits = [];
-            state.selections.forEach((pax, pIdx) => {
-                const item = pax[iIdx];
-                if(item && item.shared) {
-                    let userContribution = 0;
-                    item.shared.forEach(sh => {
-                        if(sh.d > 0) userContribution += (sh.q / sh.d);
-                    });
-                    
-                    // Si lo que aporta este usuario NO es entero, es sospechoso
-                    const userRem = Math.abs(userContribution - Math.round(userContribution));
-                    if(userRem > 0.05) {
-                        culprits.push(state.names[pIdx]);
-                    }
-                }
-            });
-
-            if (culprits.length > 0) {
-                warnings.push({
-                    type: 'decimal',
-                    name: ITEMS[iIdx].n,
-                    qty: totalQty.toFixed(2),
-                    who: culprits.join(", ")
-                });
-            }
-        }
-    }
-    return warnings;
+ const warnings = [];
+ const itemTracker = {}; 
+ // 1. Detectar duplicados (una persona comparte el mismo item varias veces)
+ state.selections.forEach((pax, pIdx) => {
+ pax.forEach((item, iIdx) => {
+ if(item.shared && item.shared.length > 1) {
+ warnings.push({
+ type: 'duplicate',
+ name: ITEMS[iIdx].n,
+ who: state.names[pIdx]
+ });
+ }
+ 
+ // Recopilar datos para validación de decimales
+ if(item.shared) {
+ item.shared.forEach(sh => {
+ if(sh.d > 0) {
+ if(!itemTracker[iIdx]) itemTracker[iIdx] = 0;
+ itemTracker[iIdx] += (sh.q / sh.d);
+ }
+ });
+ }
+ });
+ });
+ // 2. Detectar decimales incompletos
+ for (const [iIdx, totalQty] of Object.entries(itemTracker)) {
+ const remainder = Math.abs(totalQty - Math.round(totalQty));
+ 
+ if (remainder > 0.05) { 
+ const culprits = [];
+ state.selections.forEach((pax, pIdx) => {
+ const item = pax[iIdx];
+ if(item && item.shared) {
+ let userContribution = 0;
+ item.shared.forEach(sh => {
+ if(sh.d > 0) userContribution += (sh.q / sh.d);
+ });
+ 
+ // Si lo que aporta este usuario NO es entero, es sospechoso
+ const userRem = Math.abs(userContribution - Math.round(userContribution));
+ if(userRem > 0.05) {
+ culprits.push(state.names[pIdx]);
+ }
+ }
+ });
+ if (culprits.length > 0) {
+ warnings.push({
+ type: 'decimal',
+ name: ITEMS[iIdx].n,
+ qty: totalQty.toFixed(2),
+ who: culprits.join(", ")
+ });
+ }
+ }
+ }
+ return warnings;
 }
-
 function renderSummaryView() {
-  const container = document.getElementById('view-summary');
-  const calc = calculateMath();
-  const payerOpts = state.names.map((n, i) => `<option value="${i}" ${i === state.payerIdx ? 'selected' : ''}>${n}</option>`).join('');
-  
-  // Renderizar Alertas
-  const warnings = getValidationWarnings();
-  let warningsHtml = '';
-  
-  if (warnings.length > 0) {
-      const itemsHtml = warnings.map(w => {
-          if(w.type === 'duplicate') {
-              return `
-                <div class="alert-item">
-                    <div class="alert-info">
-                        <b>${w.name}</b>
-                        <span class="alert-detail">⚠️ ${w.who} se ha puesto este artículo varias veces.</span>
-                    </div>
-                </div>`;
-          } else {
-              return `
-                <div class="alert-item">
-                    <div class="alert-info">
-                        <b>${w.name}</b>
-                        <span class="alert-detail">Total actual: ${w.qty}</span>
-                    </div>
-                    <div class="alert-culprit">
-                        Iniciado por: ${w.who}
-                    </div>
-                </div>`;
-          }
-      }).join('');
-      
-      warningsHtml = `
-        <div class="alert-box">
-            <div class="alert-header">
-                <span class="alert-icon">⚠️</span>
-                <span>Atención: Revisar cuentas</span>
-            </div>
-            <div class="alert-list">${itemsHtml}</div>
-        </div>
-      `;
-  }
-
-  let html = `
-    ${warningsHtml}
-    <div class="card" style="padding:15px; border-left: 5px solid var(--primary)">
-      <span style="font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;">¿Quién pagó la cuenta?</span>
-      <select onchange="setPayer(this.value)" class="select-fancy" style="width:100%; margin-top:8px; padding:10px; font-size:16px;">${payerOpts}</select>
-    </div>
-  `;
-
-  html += `<div class="card"><div class="card-header"><span class="card-title">Balance por Persona</span></div><div class="balance-container" style="padding:15px">`;
-   
-  calc.balances.forEach((b, i) => {
-    const isPayer = (i === state.payerIdx);
-    const colorClass = isPayer ? 'is-payer' : 'is-debtor';
-    const label = isPayer ? 'RECIBE' : 'DEBE';
-    const symbol = isPayer ? '+' : '-';
-    const amount = isPayer ? (calc.grandTotal - b.consumed) : b.consumed;
-     
-    let detailsList = b.items.length > 0 
-      ? b.items.map(it => `<div class="balance-detail-item"><span>${it.desc}</span><span>${it.cost.toFixed(2)}€</span></div>`).join('')
-      : '<div style="padding:10px; text-align:center">Nada consumido</div>';
-
-    if(amount > 0.05 || b.consumed > 0) {
-      html += `
-        <details>
-          <summary class="${colorClass}">
-             <div style="text-align:left">
-                <b style="font-size:15px">${state.names[i]}</b><br>
-                <small style="opacity:0.8">Consumido: ${b.consumed.toFixed(2)}€</small>
-             </div>
-             <div style="text-align:right">
-                <small style="font-weight:800; font-size:10px;">${label}</small><br>
-                <span style="font-size:18px; font-weight:800;">${symbol}${amount.toFixed(2)}€</span>
-             </div>
-          </summary>
-          <div class="balance-detail-list">
-            ${detailsList}
-            <div style="margin-top:8px; border-top:1px solid #e2e8f0; padding-top:4px; text-align:right; font-weight:700">
-               Total Consumido: ${b.consumed.toFixed(2)}€
-            </div>
-          </div>
-        </details>
-      `;
-    }
-  });
-  html += `</div></div>`;
-   
-  html += `
-    <button class="btn-action btn-reset" onclick="softReset()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16l5 5v-5"></path></svg>
-      Resetear Contadores
-    </button>
-    <button class="btn-action btn-factory" onclick="factoryReset()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-      Eliminar Todas las Cuentas
-    </button>
-    <div style="height:30px"></div>
-  `;
-  container.innerHTML = html;
+ const container = document.getElementById('view-summary');
+ const calc = calculateMath();
+ const payerOpts = state.names.map((n, i) => `<option value="${i}" ${i === state.payerIdx ? 'selected' : ''}>${n}</option>`).join('');
+ 
+ // Renderizar Alertas
+ const warnings = getValidationWarnings();
+ let warningsHtml = '';
+ 
+ if (warnings.length > 0) {
+ const itemsHtml = warnings.map(w => {
+ if(w.type === 'duplicate') {
+ return `
+ <div class="alert-item"><div class="alert-info"><b>${w.name}</b><span class="alert-detail">⚠️ ${w.who} se ha puesto este artículo varias veces.</span></div></div>`;
+ } else {
+ return `
+ <div class="alert-item"><div class="alert-info"><b>${w.name}</b><span class="alert-detail">Total actual: ${w.qty}</span></div><div class="alert-culprit">
+ Iniciado por: ${w.who}
+ </div></div>`;
+ }
+ }).join('');
+ 
+ warningsHtml = `
+ <div class="alert-box"><div class="alert-header"><span class="alert-icon">⚠️</span><span>Atención: Revisar cuentas</span></div><div class="alert-list">${itemsHtml}</div></div>
+ `;
+ }
+ let html = `
+ ${warningsHtml}
+ <div class="card" style="padding:15px; border-left: 5px solid var(--primary)"><span style="font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;">¿Quién pagó la cuenta?</span><select onchange="setPayer(this.value)" class="select-fancy" style="width:100%; margin-top:8px; padding:10px; font-size:16px;">${payerOpts}</select></div>
+ `;
+ html += `<div class="card"><div class="card-header"><span class="card-title">Balance por Persona</span></div><div class="balance-container" style="padding:15px">`;
+ 
+ calc.balances.forEach((b, i) => {
+ const isPayer = (i === state.payerIdx);
+ const colorClass = isPayer ? 'is-payer' : 'is-debtor';
+ const label = isPayer ? 'RECIBE' : 'DEBE';
+ const symbol = isPayer ? '+' : '-';
+ const amount = isPayer ? (calc.grandTotal - b.consumed) : b.consumed;
+ 
+ let detailsList = b.items.length > 0 
+ ? b.items.map(it => `<div class="balance-detail-item"><span>${it.desc}</span><span>${it.cost.toFixed(2)}€</span></div>`).join('')
+ : '<div style="padding:10px; text-align:center">Nada consumido</div>';
+ if(amount > 0.05 || b.consumed > 0) {
+ html += `
+ <details><summary class="${colorClass}"><div style="text-align:left"><b style="font-size:15px">${state.names[i]}</b><br><small style="opacity:0.8">Consumido: ${b.consumed.toFixed(2)}€</small></div><div style="text-align:right"><small style="font-weight:800; font-size:10px;">${label}</small><br><span style="font-size:18px; font-weight:800;">${symbol}${amount.toFixed(2)}€</span></div></summary><div class="balance-detail-list">
+ ${detailsList}
+ <div style="margin-top:8px; border-top:1px solid #e2e8f0; padding-top:4px; text-align:right; font-weight:700">
+ Total Consumido: ${b.consumed.toFixed(2)}€
+ </div></div></details>
+ `;
+ }
+ });
+ html += `</div></div>`;
+ 
+ html += `
+ <button class="btn-action btn-reset" onclick="softReset()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16l5 5v-5"></path></svg>
+ Resetear Contadores
+ </button><button class="btn-action btn-factory" onclick="factoryReset()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+ Eliminar Todas las Cuentas
+ </button><div style="height:30px"></div>
+ `;
+ container.innerHTML = html;
 }
-
 function renderGlobalView() {
-  const container = document.getElementById('view-global');
-  const calc = calculateMath();
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-  if(calc.globalItems.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted)">Añade productos para generar el ticket</div>`;
-    return;
-  }
-
-  let itemsHtml = '';
-  calc.globalItems.forEach(item => {
-    const unitPrice = item.p.toFixed(2);
-    const qty = (item.q % 1 === 0) ? item.q : item.q.toFixed(2);
-    itemsHtml += `
-      <div class="receipt-row">
-        <span>${item.n}<br><small>${qty} x ${unitPrice}€</small></span>
-        <span>${item.t.toFixed(2)}€</span>
-      </div>`;
-  });
-
-  container.innerHTML = `
-    <div class="receipt-paper">
-      <div class="receipt-header">
-        <h2>${CURRENT_VENUE_NAME.toUpperCase()}</h2>
-        <p>"Sarna con gusto no pica"</p>
-        <p>Fecha: ${dateStr} - Hora: ${timeStr}</p>
-        <p>Ticket No: ${Math.floor(Math.random() * 9000) + 1000}</p>
-      </div>
-      <div class="receipt-divider"></div>
-      <div style="margin: 15px 0;">${itemsHtml}</div>
-      <div class="receipt-divider"></div>
-      <div class="receipt-total">
-        <span>TOTAL</span>
-        <span>${calc.grandTotal.toFixed(2)}€</span>
-      </div>
-      <div class="receipt-footer">
-        <div class="barcode"></div>
-        <p>GRACIAS POR SU VISITA</p>
-        <p>IVA INCLUIDO</p>
-      </div>
-    </div>
-  `;
+ const container = document.getElementById('view-global');
+ const calc = calculateMath();
+ const now = new Date();
+ const dateStr = now.toLocaleDateString();
+ const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+ if(calc.globalItems.length === 0) {
+ container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--muted)">Añade productos para generar el ticket</div>`;
+ return;
+ }
+ let itemsHtml = '';
+ calc.globalItems.forEach(item => {
+ const unitPrice = item.p.toFixed(2);
+ const qty = (item.q % 1 === 0) ? item.q : item.q.toFixed(2);
+ itemsHtml += `
+ <div class="receipt-row"><span>${item.n}<br><small>${qty} x ${unitPrice}€</small></span><span>${item.t.toFixed(2)}€</span></div>`;
+ });
+ container.innerHTML = `
+ <div class="receipt-paper"><div class="receipt-header"><h2>${CURRENT_VENUE_NAME.toUpperCase()}</h2><p>"Sarna con gusto no pica"</p><p>Fecha: ${dateStr} - Hora: ${timeStr}</p><p>Ticket No: ${Math.floor(Math.random() * 9000) + 1000}</p></div><div class="receipt-divider"></div><div style="margin: 15px 0;">${itemsHtml}</div><div class="receipt-divider"></div><div class="receipt-total"><span>TOTAL</span><span>${calc.grandTotal.toFixed(2)}€</span></div><div class="receipt-footer"><div class="barcode"></div><p>GRACIAS POR SU VISITA</p><p>IVA INCLUIDO</p></div></div>
+ `;
 }
-
 function renderGeneralView() {
-  const container = document.getElementById('view-general');
-  const openSet = UI_STATE.general || new Set();
-
-  let html = `
-    <div class="general-banner">
-      <div style="font-size:20px;">🌍</div>
-      <div>
-        <b>Gastos Comunes</b><br>
-        Lo que añadas aquí se divide automáticamente entre <b>todos</b> (${state.names.length} personas).
-      </div>
-    </div>
-  `;
-
-  // Iterar categorías, filtrando items que NO deben verse en general
-  for(const [cat, items] of Object.entries(CATEGORIES)) {
-    // Filtrar items: mostrar si no tiene 'v' (legacy), si es 'all' o si es 'common'
-    const validItems = items.filter(it => !it.v || it.v === 'all' || it.v === 'common');
-    
-    if(validItems.length === 0) continue;
-
-    const isOpen = openSet.has(cat) ? 'open' : '';
-    html += `<div class="card"><details ${isOpen}><summary>${cat}</summary><div>`;
-    
-    validItems.forEach(it => {
-      const qty = state.common[it.idx] || 0;
-      html += `
-        <div class="item-row">
-          <div class="item-info">
-            <b>${it.n}</b>
-            <small>${it.p.toFixed(2)}€</small>
-          </div>
-          <div class="stepper">
-            <btn onclick="updateCommon(${it.idx}, -1)">-</btn>
-            <span style="color:${qty>0 ? 'var(--warning)':'inherit'}">${qty}</span>
-            <btn onclick="updateCommon(${it.idx}, 1)">+</btn>
-          </div>
-        </div>
-      `;
-    });
-    html += `</div></details></div>`;
-  }
-  container.innerHTML = html;
+ const container = document.getElementById('view-general');
+ const openSet = UI_STATE.general || new Set();
+ let html = `
+ <div class="general-banner"><div style="font-size:20px;">🌍</div><div><b>Gastos Comunes</b><br>
+ Lo que añadas aquí se divide automáticamente entre <b>todos</b> (${state.names.length} personas).
+ </div></div>
+ `;
+ // Iterar categorías, filtrando items que NO deben verse en general
+ for(const [cat, items] of Object.entries(CATEGORIES)) {
+ // Filtrar items: mostrar si no tiene 'v' (legacy), si es 'all' o si es 'common'
+ const validItems = items.filter(it => !it.v || it.v === 'all' || it.v === 'common');
+ 
+ if(validItems.length === 0) continue;
+ const isOpen = openSet.has(cat) ? 'open' : '';
+ html += `<div class="card"><details ${isOpen}><summary>${cat}</summary><div>`;
+ 
+ validItems.forEach(it => {
+ const qty = state.common[it.idx] || 0;
+ html += `
+ <div class="item-row"><div class="item-info"><b>${it.n}</b><small>${it.p.toFixed(2)}€</small></div><div class="stepper"><btn onclick="updateCommon(${it.idx}, -1)">-</btn><span style="color:${qty>0 ? 'var(--warning)':'inherit'}">${qty}</span><btn onclick="updateCommon(${it.idx}, 1)">+</btn></div></div>
+ `;
+ });
+ html += `</div></details></div>`;
+ }
+ container.innerHTML = html;
 }
-
 function renderParticipantView(pIdx) {
-  const container = document.getElementById(`view-pax-${pIdx}`);
-  if(!container) return;
-  const openSet = UI_STATE.paxes[pIdx] || new Set();
-
-  let html = `
-    <div class="card">
-      <div class="card-header">
-         <input type="text"
-           class="pax-header-input"
-           value="${state.names[pIdx]}"
-           oninput="syncNameTab(${pIdx}, this.value)"
-           onblur="updateName(${pIdx}, this.value)"
-           onkeydown="if(event.key==='Enter') this.blur()"
-           placeholder="Nombre..."
-         >
-         <button onclick="removeParticipant(${pIdx})" class="btn-delete-pax">
-           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-         </button>
-      </div>
-    </div>
-  `;
-
-  for(const [cat, items] of Object.entries(CATEGORIES)) {
-    if(cat === "🍳 Sukaldea / Cocina") continue;
-    
-    // Filtrar items: mostrar si no tiene 'v', si es 'all' o si es 'pax'
-    const validItems = items.filter(it => !it.v || it.v === 'all' || it.v === 'pax');
-    if(validItems.length === 0) continue;
-
-    const isOpen = openSet.has(cat) ? 'open' : '';
-    html += `<div class="card"><details ${isOpen}><summary>${cat}</summary><div>`;
-    validItems.forEach(it => {
-      const sel = state.selections[pIdx][it.idx];
-      const soloQty = sel.solo || 0;
-      let sharedHtml = '';
-      if(sel.shared && sel.shared.length > 0) {
-        sel.shared.forEach((sh, shIdx) => {
-          sharedHtml += `
-            <div class="split-row">
-              <span style="font-size:10px; font-weight:800; color:var(--primary)">GRP</span>
-              <div class="stepper" style="transform:scale(0.8)">
-                <btn onclick="updateShared(${pIdx}, ${it.idx}, ${shIdx}, 'q', -1)">-</btn>
-                <span>${sh.q}</span>
-                <btn onclick="updateShared(${pIdx}, ${it.idx}, ${shIdx}, 'q', 1)">+</btn>
-              </div>
-              <span style="font-size:11px; color:#666">entre</span>
-              <select class="select-fancy select-compact" onchange="updateShared(${pIdx}, ${it.idx}, ${shIdx}, 'd', this.value)">
-                ${Array.from({length: state.names.length}, (_, k) => 
-                  `<option value="${k+1}" ${sh.d == k+1 ? 'selected':''}>${k+1}</option>`).join('')}
-              </select>
-            </div>
-          `;
-        });
-      }
-      html += `
-        <div class="item-row">
-          <div class="item-info">
-            <b>${it.n}</b>
-            <small>${it.p.toFixed(2)}€</small>
-            ${sharedHtml}
-          </div>
-          <div style="display:flex; flex-direction:column; align-items:end; gap:5px;">
-             <div class="stepper">
-                <btn onclick="updateVal(${pIdx}, ${it.idx}, -1)">-</btn>
-                <span style="color:${soloQty>0 ? 'var(--primary)':'inherit'}">${soloQty}</span>
-                <btn onclick="updateVal(${pIdx}, ${it.idx}, 1)">+</btn>
-             </div>
-             <button onclick="addShared(${pIdx}, ${it.idx})" style="border:none; background:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer;">+ Compartir</button>
-          </div>
-        </div>
-      `;
-    });
-    html += `</div></details></div>`;
-  }
-  container.innerHTML = html;
+ const container = document.getElementById(`view-pax-${pIdx}`);
+ if(!container) return;
+ const openSet = UI_STATE.paxes[pIdx] || new Set();
+ let html = `
+ <div class="card"><div class="card-header"><input type="text"
+ class="pax-header-input"
+ value="${state.names[pIdx]}"
+ oninput="syncNameTab(${pIdx}, this.value)"
+ onblur="updateName(${pIdx}, this.value)"
+ onkeydown="if(event.key==='Enter') this.blur()"
+ placeholder="Nombre..."
+ ><button onclick="removeParticipant(${pIdx})" class="btn-delete-pax"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button></div></div>
+ `;
+ for(const [cat, items] of Object.entries(CATEGORIES)) {
+ if(cat === "🍳 Sukaldea / Cocina") continue;
+ 
+ // Filtrar items: mostrar si no tiene 'v', si es 'all' o si es 'pax'
+ const validItems = items.filter(it => !it.v || it.v === 'all' || it.v === 'pax');
+ if(validItems.length === 0) continue;
+ const isOpen = openSet.has(cat) ? 'open' : '';
+ html += `<div class="card"><details ${isOpen}><summary>${cat}</summary><div>`;
+ validItems.forEach(it => {
+ const sel = state.selections[pIdx][it.idx];
+ const soloQty = sel.solo || 0;
+ let sharedHtml = '';
+ if(sel.shared && sel.shared.length > 0) {
+ sel.shared.forEach((sh, shIdx) => {
+ sharedHtml += `
+ <div class="split-row"><span style="font-size:10px; font-weight:800; color:var(--primary)">GRP</span><div class="stepper" style="transform:scale(0.8)"><btn onclick="updateShared(${pIdx}, ${it.idx}, ${shIdx}, 'q', -1)">-</btn><span>${sh.q}</span><btn onclick="updateShared(${pIdx}, ${it.idx}, ${shIdx}, 'q', 1)">+</btn></div><span style="font-size:11px; color:#666">entre</span><select class="select-fancy select-compact" onchange="updateShared(${pIdx}, ${it.idx}, ${shIdx}, 'd', this.value)">
+ ${Array.from({length: state.names.length}, (_, k) => 
+ `<option value="${k+1}" ${sh.d == k+1 ? 'selected':''}>${k+1}</option>`).join('')}
+ </select></div>
+ `;
+ });
+ }
+ html += `
+ <div class="item-row"><div class="item-info"><b>${it.n}</b><small>${it.p.toFixed(2)}€</small>
+ ${sharedHtml}
+ </div><div style="display:flex; flex-direction:column; align-items:end; gap:5px;"><div class="stepper"><btn onclick="updateVal(${pIdx}, ${it.idx}, -1)">-</btn><span style="color:${soloQty>0 ? 'var(--primary)':'inherit'}">${soloQty}</span><btn onclick="updateVal(${pIdx}, ${it.idx}, 1)">+</btn></div><button onclick="addShared(${pIdx}, ${it.idx})" style="border:none; background:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer;">+ Compartir</button></div></div>
+ `;
+ });
+ html += `</div></details></div>`;
+ }
+ container.innerHTML = html;
 }
-
 function calculateMath() {
-  let grandTotal = 0;
-  const numPax = state.names.length;
-  const paxData = state.names.map(() => ({ consumed: 0, items: [] }));
-  const globalItemsMap = {}; 
-
-  const addToGlobal = (idx, qty, total, name, price) => {
-      if(!globalItemsMap[idx]) globalItemsMap[idx] = { n: name, q: 0, t: 0, p: price };
-      globalItemsMap[idx].q += qty;
-      globalItemsMap[idx].t += total;
-  };
-
-  if(state.common) {
-    state.common.forEach((qty, iIdx) => {
-      if(qty > 0) {
-        const itemDef = ITEMS[iIdx];
-        const totalCommonCost = qty * itemDef.p;
-        const costPerPax = totalCommonCost / numPax;
-        paxData.forEach(pd => {
-          pd.consumed += costPerPax;
-          pd.items.push({ desc: `Parte Prop. ${itemDef.n} (${qty} total)`, cost: costPerPax });
-        });
-        grandTotal += totalCommonCost;
-        addToGlobal(iIdx, qty, totalCommonCost, itemDef.n, itemDef.p);
-      }
-    });
-  }
-
-  state.selections.forEach((paxSel, pIdx) => {
-    paxSel.forEach((itemSel, iIdx) => {
-      const itemDef = ITEMS[iIdx];
-      const price = itemDef.p;
-      if(itemSel.solo > 0) {
-        const cost = itemSel.solo * price;
-        paxData[pIdx].consumed += cost;
-        paxData[pIdx].items.push({ desc: `${itemSel.solo}x ${itemDef.n}`, cost: cost });
-        grandTotal += cost;
-        addToGlobal(iIdx, itemSel.solo, cost, itemDef.n, price);
-      }
-      if(itemSel.shared) {
-        itemSel.shared.forEach(sh => {
-          if(sh.q > 0 && sh.d > 0) {
-            const myShareCost = (sh.q / sh.d) * price;
-            paxData[pIdx].consumed += myShareCost;
-            paxData[pIdx].items.push({ desc: `${sh.q}/${sh.d} de ${itemDef.n}`, cost: myShareCost });
-            grandTotal += myShareCost;
-            addToGlobal(iIdx, (sh.q / sh.d), myShareCost, itemDef.n, price);
-          }
-        });
-      }
-    });
-  });
-
-  const globalItemsArr = Object.values(globalItemsMap).map(i => ({
-    n: i.n, q: i.q, t: i.t, p: i.p 
-  })).filter(i => i.t > 0);
-
-  return { grandTotal, balances: paxData, globalItems: globalItemsArr };
+ let grandTotal = 0;
+ const numPax = state.names.length;
+ const paxData = state.names.map(() => ({ consumed: 0, items: [] }));
+ const globalItemsMap = {}; 
+ const addToGlobal = (idx, qty, total, name, price) => {
+ if(!globalItemsMap[idx]) globalItemsMap[idx] = { n: name, q: 0, t: 0, p: price };
+ globalItemsMap[idx].q += qty;
+ globalItemsMap[idx].t += total;
+ };
+ if(state.common) {
+ state.common.forEach((qty, iIdx) => {
+ if(qty > 0) {
+ const itemDef = ITEMS[iIdx];
+ const totalCommonCost = qty * itemDef.p;
+ const costPerPax = totalCommonCost / numPax;
+ paxData.forEach(pd => {
+ pd.consumed += costPerPax;
+ pd.items.push({ desc: `Parte Prop. ${itemDef.n} (${qty} total)`, cost: costPerPax });
+ });
+ grandTotal += totalCommonCost;
+ addToGlobal(iIdx, qty, totalCommonCost, itemDef.n, itemDef.p);
+ }
+ });
+ }
+ state.selections.forEach((paxSel, pIdx) => {
+ paxSel.forEach((itemSel, iIdx) => {
+ const itemDef = ITEMS[iIdx];
+ const price = itemDef.p;
+ if(itemSel.solo > 0) {
+ const cost = itemSel.solo * price;
+ paxData[pIdx].consumed += cost;
+ paxData[pIdx].items.push({ desc: `${itemSel.solo}x ${itemDef.n}`, cost: cost });
+ grandTotal += cost;
+ addToGlobal(iIdx, itemSel.solo, cost, itemDef.n, price);
+ }
+ if(itemSel.shared) {
+ itemSel.shared.forEach(sh => {
+ if(sh.q > 0 && sh.d > 0) {
+ const myShareCost = (sh.q / sh.d) * price;
+ paxData[pIdx].consumed += myShareCost;
+ paxData[pIdx].items.push({ desc: `${sh.q}/${sh.d} de ${itemDef.n}`, cost: myShareCost });
+ grandTotal += myShareCost;
+ addToGlobal(iIdx, (sh.q / sh.d), myShareCost, itemDef.n, price);
+ }
+ });
+ }
+ });
+ });
+ const globalItemsArr = Object.values(globalItemsMap).map(i => ({
+ n: i.n, q: i.q, t: i.t, p: i.p 
+ })).filter(i => i.t > 0);
+ return { grandTotal, balances: paxData, globalItems: globalItemsArr };
 }
-
 function updateCalculations() {
-  const calc = calculateMath();
-  document.getElementById('headerTotal').innerText = calc.grandTotal.toFixed(2) + "€";
+ const calc = calculateMath();
+ document.getElementById('headerTotal').innerText = calc.grandTotal.toFixed(2) + "€";
 }
-
 function getBillText() {
-  const calc = calculateMath();
-  const payer = state.names[state.payerIdx];
-  const now = new Date();
-  
-  let t = `🧾 *LA DOLOROSA - ${CURRENT_VENUE_NAME.toUpperCase()}* \n`;
-  t += `📅 ${now.toLocaleDateString()}  🕒 ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n`;
-  t += `──────────────────────\n`; 
-  t += `💰 *TOTAL CUENTA:* ${calc.grandTotal.toFixed(2)}€\n`;
-  t += `👑 *PAGÓ:* ${payer}\n`;
-  t += `──────────────────────\n\n`;
-  
-  t += `💸 *PAGAR A ${payer.toUpperCase()}:*\n`;
-  
-  let anyDebt = false;
-  calc.balances.forEach((b, i) => {
-    if(i === state.payerIdx) return;
-    const amount = b.consumed;
-    if(amount > 0.05) {
-      anyDebt = true;
-      t += `▫️ *${state.names[i]}* 👉 ${amount.toFixed(2)}€\n`;
-    }
-  });
-
-  if(!anyDebt) t += "¡Nadie debe nada! 🎉\n";
-  
-  t += `\n──────────────────────\n`;
-  
-  return t;
+ const calc = calculateMath();
+ const payer = state.names[state.payerIdx];
+ const now = new Date();
+ 
+ let t = `🧾 *LA DOLOROSA - ${CURRENT_VENUE_NAME.toUpperCase()}* \n`;
+ t += `📅 ${now.toLocaleDateString()} 🕒 ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n`;
+ t += `──────────────────────\n`; 
+ t += `💰 *TOTAL CUENTA:* ${calc.grandTotal.toFixed(2)}€\n`;
+ t += `👑 *PAGÓ:* ${payer}\n`;
+ t += `──────────────────────\n\n`;
+ 
+ t += `💸 *PAGAR A ${payer.toUpperCase()}:*\n`;
+ 
+ let anyDebt = false;
+ calc.balances.forEach((b, i) => {
+ if(i === state.payerIdx) return;
+ const amount = b.consumed;
+ if(amount > 0.05) {
+ anyDebt = true;
+ t += `▫️ *${state.names[i]}* 👉 ${amount.toFixed(2)}€\n`;
+ }
+ });
+ if(!anyDebt) t += "¡Nadie debe nada! 🎉\n";
+ 
+ t += `\n──────────────────────\n`;
+ 
+ return t;
 }
-
 window.shareNative = async function() {
-  const text = getBillText();
-  const shareData = { title: 'La Dolorosa', text: text };
-  if (navigator.share) {
-    try { await navigator.share(shareData); } catch (err) { console.log('Error', err); }
-  } else {
-    alert("Navegador no soporta compartir nativo.");
-  }
+ const text = getBillText();
+ const shareData = { title: 'La Dolorosa', text: text };
+ if (navigator.share) {
+ try { await navigator.share(shareData); } catch (err) { console.log('Error', err); }
+ } else {
+ alert("Navegador no soporta compartir nativo.");
+ }
 }
-
 window.copyBill = function() {
-  const text = getBillText();
-  const btn = document.getElementById('btnCopy');
-  const originalHtml = btn.innerHTML;
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(showSuccess);
-  } else {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand("Copy");
-    textArea.remove();
-    showSuccess();
-  }
-  
-  function showSuccess() {
-    btn.style.background = "#10b981";
-    btn.innerHTML = "<span>✅ Copiado</span>";
-    setTimeout(() => {
-      btn.style.background = "";
-      btn.innerHTML = originalHtml;
-    }, 2000);
-  }
+ const text = getBillText();
+ const btn = document.getElementById('btnCopy');
+ const originalHtml = btn.innerHTML;
+ 
+ if (navigator.clipboard) {
+ navigator.clipboard.writeText(text).then(showSuccess);
+ } else {
+ const textArea = document.createElement("textarea");
+ textArea.value = text;
+ document.body.appendChild(textArea);
+ textArea.select();
+ document.execCommand("Copy");
+ textArea.remove();
+ showSuccess();
+ }
+ 
+ function showSuccess() {
+ btn.style.background = "#10b981";
+ btn.innerHTML = "<span>✅ Copiado</span>";
+ setTimeout(() => {
+ btn.style.background = "";
+ btn.innerHTML = originalHtml;
+ }, 2000);
+ }
 }
-
 function enableDragScroll() {
-  const slider = document.getElementById('navContainer');
-  let isDown = false;
-  let startX;
-  let scrollLeft;
-  slider.addEventListener('mousedown', (e) => {
-    isDown = true;
-    slider.style.cursor = 'grabbing';
-    startX = e.pageX - slider.offsetLeft;
-    scrollLeft = slider.scrollLeft;
-  });
-  slider.addEventListener('mouseleave', () => { isDown = false; slider.style.cursor = 'grab'; });
-  slider.addEventListener('mouseup', () => { isDown = false; slider.style.cursor = 'grab'; });
-  slider.addEventListener('mousemove', (e) => {
-    if(!isDown) return;
-    e.preventDefault();
-    const x = e.pageX - slider.offsetLeft;
-    const walk = (x - startX) * 2; 
-    slider.scrollLeft = scrollLeft - walk;
-  });
+ const slider = document.getElementById('navContainer');
+ let isDown = false;
+ let startX;
+ let scrollLeft;
+ slider.addEventListener('mousedown', (e) => {
+ isDown = true;
+ slider.style.cursor = 'grabbing';
+ startX = e.pageX - slider.offsetLeft;
+ scrollLeft = slider.scrollLeft;
+ });
+ slider.addEventListener('mouseleave', () => { isDown = false; slider.style.cursor = 'grab'; });
+ slider.addEventListener('mouseup', () => { isDown = false; slider.style.cursor = 'grab'; });
+ slider.addEventListener('mousemove', (e) => {
+ if(!isDown) return;
+ e.preventDefault();
+ const x = e.pageX - slider.offsetLeft;
+ const walk = (x - startX) * 2; 
+ slider.scrollLeft = scrollLeft - walk;
+ });
 }
-
 // EXPONER FUNCIONES
 window.updateVal = updateVal;
 window.updateCommon = updateCommon;
@@ -1398,6 +1059,4 @@ window.addParticipant = addParticipant;
 window.removeParticipant = removeParticipant;
 window.softReset = softReset;
 window.factoryReset = factoryReset;
-</script>
-</body>
-</html>
+</script></body></html>
