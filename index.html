@@ -1363,35 +1363,48 @@ function getBillText() {
   const calc = calculateMath();
   const payer = state.names[state.payerIdx];
   const now = new Date();
-  
-  let venueNameDisplay = "LA DOLOROSA";
-  if (CURRENT_VENUE === 'aiur') venueNameDisplay = "CLUB CICLISTA IRUNÉS";
-  if (CURRENT_VENUE === 'ekhi') venueNameDisplay = "LA SALLE";
-  if (CURRENT_VENUE === 'galarza') venueNameDisplay = "ATSEGIÑA";
-  
-  let t = `🧾 *LA DOLOROSA - ${venueNameDisplay}* \n`;
-  t += `📅 ${now.toLocaleDateString()}  🕒 ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n`;
-  t += `──────────────────────\n`; 
-  t += `💰 *TOTAL CUENTA:* ${calc.grandTotal.toFixed(2)}€\n`;
-  t += `👑 *PAGÓ:* ${payer}\n`;
-  t += `──────────────────────\n\n`;
-  
-  t += `💸 *PAGAR A ${payer.toUpperCase()}:*\n`;
-  
+  const dateStr = now.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'2-digit' });
+  const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  let venueNameDisplay = "La Dolorosa";
+  if (CURRENT_VENUE === 'aiur') venueNameDisplay = "Club Ciclista Irunés";
+  if (CURRENT_VENUE === 'ekhi') venueNameDisplay = "La Salle";
+  if (CURRENT_VENUE === 'galarza') venueNameDisplay = "Atsegiña";
+
+  let t = '';
+  t += `📍 *${venueNameDisplay}*  ·  ${dateStr}
+`;
+  t += `
+`;
+  t += `💰 *Total:* ${calc.grandTotal.toFixed(2)} €
+`;
+  t += `🧾 *Pagó:* ${payer}
+`;
+  t += `
+`;
+
   let anyDebt = false;
   calc.balances.forEach((b, i) => {
-    if(i === state.payerIdx) return;
-    const amount = b.consumed;
-    if(amount > 0.05) {
+    if (i === state.payerIdx) return;
+    if (b.consumed > 0.05) {
       anyDebt = true;
-      t += `▫️ *${state.names[i]}* 👉 ${amount.toFixed(2)}€\n`;
+      t += `↩️ *${state.names[i]}* debe ${b.consumed.toFixed(2)} €
+`;
     }
   });
 
-  if(!anyDebt) t += "¡Nadie debe nada! 🎉\n";
-  
-  t += `\n──────────────────────\n`;
-  
+  if (!anyDebt) {
+    t += `✅ Nadie debe nada
+`;
+  } else {
+    const payerBalance = calc.grandTotal - calc.balances[state.payerIdx].consumed;
+    if (payerBalance > 0.05) {
+      t += `
+✅ *${payer}* recupera ${payerBalance.toFixed(2)} €
+`;
+    }
+  }
+
   return t;
 }
 
