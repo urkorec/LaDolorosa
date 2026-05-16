@@ -282,20 +282,34 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 <body>
 
 <div id="landing-page">
-  <div class="landing-content">
+  <!-- Pantalla PIN -->
+  <div class="landing-content" id="pin-screen">
+    <span class="landing-logo">🔑</span>
+    <h1 class="landing-title">La Dolorosa</h1>
+    <p style="color:var(--muted); margin-bottom:20px; font-size:15px;">Introduce el PIN para acceder</p>
+    <input type="password" id="pin-input" class="editor-input"
+      placeholder="PIN de acceso"
+      style="width:100%; padding:16px; font-size:18px; text-align:center; border-radius:16px; border:2px solid var(--border); margin-bottom:12px;"
+      onkeydown="if(event.key==='Enter') checkPin()"
+    >
+    <button onclick="checkPin()"
+      style="width:100%; padding:16px; background:var(--primary); color:white; border:none; border-radius:16px; font-size:17px; font-weight:800; cursor:pointer;">
+      Entrar
+    </button>
+    <p id="pin-error" style="color:var(--danger); margin-top:12px; font-weight:700; display:none;">PIN incorrecto, inténtalo de nuevo</p>
+  </div>
+  <!-- Pantalla selección de local -->
+  <div class="landing-content" id="venue-screen" style="display:none;">
     <span class="landing-logo">💸</span>
     <h1 class="landing-title">¿Dónde estamos?</h1>
-    
     <button class="venue-btn" onclick="startApp('aiur')">
       <span>Club Ciclista Irunés</span>
       <span>🚴</span>
     </button>
-    
     <button class="venue-btn" onclick="startApp('ekhi')">
       <span>La Salle</span>
       <span>🎓</span>
     </button>
-    
     <button class="venue-btn" onclick="startApp('galarza')">
       <span>Atsegiña</span>
       <span>👨‍🍳</span>
@@ -359,6 +373,12 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 const SECRET_PIN = "Naroa es muy guapa";
 const PIN_STORAGE_KEY = "ldl_auth_ok";
+
+// Si la URL tiene ?clear=1, borrar el PIN guardado y recargar limpio
+if (new URLSearchParams(window.location.search).get('clear') === '1') {
+  localStorage.removeItem(PIN_STORAGE_KEY);
+  window.location.href = window.location.pathname;
+}
 
 const ADMIN_CODE = "1525";
 
