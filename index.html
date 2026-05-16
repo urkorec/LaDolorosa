@@ -268,6 +268,15 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .split-row { margin-top: 8px; background: #fff; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); display: flex; gap: 8px; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
 
 .general-banner { background: var(--warning-bg); color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; border: 1px solid #fcd34d; display: flex; align-items: center; gap: 10px; }
+
+/* KALI STYLES */
+.kali-info-row { padding: 10px 15px; background: var(--primary-light); border-top: 1px dashed var(--border); font-size: 12px; color: var(--primary-dark); display: flex; justify-content: space-between; align-items: center; }
+.kali-price-input {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; width: 90px;
+  background: #f8fafc; text-align: center; transition: all 0.2s;
+}
+.kali-price-input:focus { outline: none; border-color: var(--primary); background: #fff; }
 </style>
 </head>
 <body>
@@ -349,154 +358,8 @@ const db = getDatabase(app);
 
 const ADMIN_CODE = "1525";
 
-// --- MENÚ BASE POR DEFECTO ---
-// Propiedad 'v': 'all' (ambos), 'pax' (solo participantes), 'common' (solo general)
-const BASE_ITEMS = [
-  { cat: "🍷 Ardoak / Vinos", n: "Ardo beltza · Tinto", p: 3.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Ardo gorria · Rosado", p: 3.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Rueda Bitacora", p: 4.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Crianza Glorioso", p: 7.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Cuarto crianza", p: 5.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Txakoli", p: 7.50, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Moscato", p: 5.00, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Sagardoa · Sidra", p: 3.00, v: 'all' },
-  { cat: "🍷 Ardoak / Vinos", n: "Cava", p: 10.00, v: 'all' },
-  { cat: "🍾 Deskorxea / Descorche", n: "Descorche / Kanpoko", p: 2.50, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "San Miguel/Estrella", p: 1.30, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Daura", p: 1.80, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Voll-Damm", p: 1.50, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "0,0", p: 1.30, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Radler", p: 1.20, v: 'all' },
-  { cat: "🍺 Garagardoak / Cervezas", n: "Alhambra", p: 2.00, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Coca-Cola", p: 1.20, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Kas Laranja/Limoia", p: 1.00, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Tónica Schweppes", p: 1.50, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Aquarius", p: 1.50, v: 'all' },
-  { cat: "🥤 Freskagarriak / Refrescos", n: "Ura · Agua", p: 0.60, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Kafea · Café", p: 1.20, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Kafeinagabeko", p: 1.20, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Cola Cao", p: 1.00, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Esne · Leche", p: 1.00, v: 'all' },
-  { cat: "☕ Kafeak / Cafés", n: "Infusioak", p: 1.00, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Patxarana", p: 2.50, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Uxual Krema", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Ginebra Beefeater", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Ron Habana/Barceló", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Vodka Smirnoff/Absolut", p: 2.50, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Cointreau", p: 2.70, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Torres 10", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Armagnac", p: 3.70, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Whisky J.B.", p: 2.60, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Belar/Hierbas", p: 2.20, v: 'all' },
-  { cat: "🍸 Likoreak / Licores", n: "Jägermeister", p: 2.50, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Olioa · Aceite", p: 2.00, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Ongailuak · Adrezos", p: 0.50, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Tupper", p: 0.25, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Gasa · Gas (15min)", p: 1.80, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Bazkaria · Comida", p: 3.00, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Afaria · Cena", p: 3.00, v: 'all' },
-  { cat: "🍳 Sukaldea / Cocina", n: "Merienda", p: 2.50, v: 'all' }
-];
-const LASALLE_ITEMS = [
-  // 🍷 VINOS
-
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Reserva Remelluri", p: 26.90, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Reserva Cerro Añon", p: 12.00, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Crianza Pierola", p: 12.40, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Crianza Viña Real", p: 8.50, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Crianza Mar Vitoria", p: 7.85, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Crianza Glorioso", p: 7.70, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Crianza Campillo", p: 10.90, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Crianza Protos", p: 19.80, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Tinto Don Hugo", p: 3.40, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Sidra Zapiain · Sagardoa", p: 3.25, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Rosado Ilagares", p: 4.50, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Lambrusco Monteberin", p: 4.25, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Blanco Viña Mayor Verdejo", p: 6.65, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Txakoli Gaintza", p: 8.10, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Albariño Segrel", p: 9.90, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Cava OR", p: 13.00, v: 'all' },
- { cat: "🍷 Ardoak / Vinos", n: "Cava Ondarre Millennium", p: 8.60, v: 'all' },
-
-  // 🍾 DESCORCHE
- { cat: "🍾 Deskorxea / Descorche", n: "Vino x 750 ml", p: 2.50, v: 'all' },
- { cat: "🍾 Deskorxea / Descorche", n: "Licores x litro", p: 3.00, v: 'all' },
- { cat: "🍾 Deskorxea / Descorche", n: "Cava x 750 ml", p: 2.50, v: 'all' },
- { cat: "🍾 Deskorxea / Descorche", n: "Refrescos 2L", p: 1.60, v: 'all' },
- { cat: "🍾 Deskorxea / Descorche", n: "Aceite x litro", p: 1.60, v: 'all' },
- { cat: "🍾 Deskorxea / Descorche", n: "No asistencia por comensal", p: 2.00, v: 'all' },
-
-  // 🍺 CERVEZAS
- { cat: "🍺 Garagardoak / Cervezas", n: "San Miguel", p: 1.00, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "San Miguel 0.0", p: 1.00, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "Heineken Grande", p: 1.50, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "Amstel Oro", p: 1.70, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "Leffe", p: 2.95, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "Voll-Damm", p: 2.70, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "San Miguel Sin Gluten", p: 1.45, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "18/70", p: 2.00, v: 'all' },
- { cat: "🍺 Garagardoak / Cervezas", n: "Amstel Radler", p: 1.90, v: 'all' },
-
-
-  // 🥤 REFRESCOS
- { cat: "🥤 Freskagarriak / Refrescos", n: "Coca-Cola", p: 1.10, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Coca-Cola Zero", p: 1.10, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Kas Naranja", p: 1.10, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Kas Limón", p: 1.10, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Tónica Schweppes", p: 1.30, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Gaseosa La Casera 50cl", p: 1.00, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Agua Uralai 1.5L", p: 1.00, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Agua Botellín 0.33", p: 0.50, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Agua con gas Vichy Catalán", p: 1.80, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Zumos Lambda", p: 1.35, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Batidos", p: 1.25, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Vermouth Martini Rojo", p: 1.50, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Bitter Cinzano", p: 2.00, v: 'all' },
- { cat: "🥤 Freskagarriak / Refrescos", n: "Bitter Kas", p: 1.40, v: 'all' },
-
- // ☕ Kafeak / Cafés
- { cat: "☕ Kafeak / Cafés", n: "Café o infusiones", p: 1.00, v: 'all' },
- { cat: "☕ Kafeak / Cafés", n: "Nesquik / ColaCao", p: 1.00, v: 'all' },
-
- // 🍸 Likoreak / Licores
- { cat: "🍸 Likoreak / Licores", n: "Brandy Torres 10", p: 2.00, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Ginebra Gordons", p: 2.20, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Ginebra Beefeater", p: 2.50, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Ginebra Bombay", p: 2.70, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Patxaran Navarra", p: 2.10, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Anís Cadenas", p: 1.70, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Crema Ruavieja", p: 1.85, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Hierbas Ruavieja", p: 1.85, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Orujo Ruavieja", p: 1.70, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Ron Bacardi", p: 2.00, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Ron Barceló", p: 2.30, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Ron Havana Club", p: 2.10, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Whisky J.B.", p: 2.15, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Whisky Ballantines", p: 2.00, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Whisky Chivas", p: 3.80, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Armagnac", p: 3.80, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Cointreau", p: 2.85, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Vodka Smirnoff", p: 2.20, v: 'all' },
- { cat: "🍸 Likoreak / Licores", n: "Patxaran Etxeko", p: 2.10, v: 'all' },
-
- // 🍳 Sukaldea / Cocina
- { cat: "🍳 Sukaldea / Cocina", n: "Vajilla + limpieza (mantel tela)", p: 3.20, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Vajilla + limpieza (mantel papel)", p: 2.75, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Servilleta tela", p: 0.50, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Fuego 30 min", p: 2.00, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Horno 30 min", p: 2.00, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Plancha 30 min", p: 2.00, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Aceite Úbeda 250ml", p: 2.50, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Aceite Úbeda 500ml", p: 4.50, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Aceite girasol 1L", p: 2.80, v: 'all' },
- { cat: "🍳 Sukaldea / Cocina", n: "Envases/Tupper 1.5–2L", p: 0.80, v: 'all' },
- 
-// 🥫 Kontserbak / Conservas
- { cat: "🥫 Kontserbak / Conservas", n: "Pimiento piquillo", p: 2.40, v: 'all' },
- { cat: "🥫 Kontserbak / Conservas", n: "Aceitunas", p: 1.75, v: 'all' },
- { cat: "🥫 Kontserbak / Conservas", n: "Espárragos", p: 6.85, v: 'all' },
- { cat: "🥫 Kontserbak / Conservas", n: "Atún claro Pescamar", p: 1.90, v: 'all' },
-];
+// Los menús están almacenados en Firebase (menu_v4_aiur / menu_v4_ekhi / menu_v4_galarza)
+// Para editarlos, usa el Modo Editor dentro de la app (botón lápiz) o la consola de Firebase.
 
 // Variables dinámicas
 let ITEMS = [];
@@ -505,25 +368,25 @@ let DB_PATH = '';
 let MENU_PATH = '';
 let CURRENT_VENUE = '';
 let isAdmin = false;
-let isInitialLoad = true; // Control de primera carga
+let isInitialLoad = true;
 
 let state = {
   names: ["Persona 1", "Persona 2"], 
   selections: [], 
   common: [], 
   payerIdx: 0,
-  activeTab: 0 
+  activeTab: 0,
+  kali: { counts: [0, 0], wineBottles: 0, winePrice: 0 }
 };
 
 let UI_STATE = { general: new Set(), paxes: {} };
 
 // --- FUNCIÓN DE ARRANQUE ---
 window.startApp = function(venue) {
-  // Configurar según local elegido
   CURRENT_VENUE = venue;
   DB_PATH = `gastosPro_v4_${venue}`;
   MENU_PATH = `menu_v4_${venue}`;
-  isInitialLoad = true; // Resetear flag al entrar
+  isInitialLoad = true;
 
   document.getElementById('app-container').style.display = 'block';
   setTimeout(() => document.getElementById('landing-page').style.opacity = '0', 50);
@@ -563,6 +426,67 @@ window.toggleAdminMode = function() {
             alert("Código incorrecto");
         }
     }
+}
+
+// --- HELPERS KALI ---
+function ensureKali() {
+  if(!state.kali) state.kali = { counts: new Array(state.names.length).fill(0), wineBottles: 0, winePrice: 0, wineItemIdx: -1 };
+  if(!state.kali.counts || state.kali.counts.length !== state.names.length) {
+    state.kali.counts = new Array(state.names.length).fill(0);
+  }
+  if(state.kali.wineItemIdx === undefined) state.kali.wineItemIdx = -1;
+}
+
+function findColaIdx() {
+  let idx = ITEMS.findIndex(it => /coca-cola$/i.test(it.n.trim()));
+  if(idx === -1) idx = ITEMS.findIndex(it => /coca.cola/i.test(it.n) && !/zero/i.test(it.n));
+  if(idx === -1) idx = ITEMS.findIndex(it => /coca.cola/i.test(it.n));
+  return idx;
+}
+
+window.updateKaliCount = function(pIdx, delta) {
+  ensureKali();
+  const prev = state.kali.counts[pIdx] || 0;
+  const next = Math.max(0, prev + delta);
+  const actualDelta = next - prev;
+  state.kali.counts[pIdx] = next;
+  // Auto añadir/quitar Coca-Cola del participante
+  if(actualDelta !== 0) {
+    const colaIdx = findColaIdx();
+    if(colaIdx !== -1 && state.selections[pIdx] && state.selections[pIdx][colaIdx] !== undefined) {
+      state.selections[pIdx][colaIdx].solo = Math.max(0, (state.selections[pIdx][colaIdx].solo || 0) + actualDelta);
+    }
+  }
+  saveData();
+  updateCalculations();
+}
+
+window.updateKaliWineBottles = function(delta) {
+  ensureKali();
+  state.kali.wineBottles = Math.max(0, (state.kali.wineBottles || 0) + delta);
+  saveData();
+  updateCalculations();
+}
+
+window.updateKaliWinePrice = function(val) {
+  ensureKali();
+  state.kali.winePrice = Math.max(0, parseFloat(val) || 0);
+  saveData();
+  updateCalculations();
+}
+
+window.updateKaliWineSelection = function(itemIdx) {
+  ensureKali();
+  const idx = parseInt(itemIdx);
+  state.kali.wineItemIdx = idx;
+  if(idx >= 0 && ITEMS[idx]) {
+    state.kali.winePrice = ITEMS[idx].p;
+  } else {
+    state.kali.winePrice = 0;
+  }
+  saveData();
+  renderGeneralView();
+  updateCalculations();
 }
 
 // --- LOGICA DEL SISTEMA ---
@@ -606,23 +530,18 @@ function init() {
   // 1. CARGAR MENÚ DEL LOCAL
   onValue(ref(db, MENU_PATH), (snapshot) => {
       const menuData = snapshot.val();
-     if (menuData) {
+     if (menuData && menuData.length > 0) {
   ITEMS = menuData;
 } else {
-  if (CURRENT_VENUE === "ekhi") {
-    ITEMS = JSON.parse(JSON.stringify(LASALLE_ITEMS));
-  } if (CURRENT_VENUE === "Galarza") {
-    ITEMS = JSON.parse(JSON.stringify(BASE_ITEMS));
-  } if (CURRENT_VENUE === "aiur") {
-    ITEMS = JSON.parse(JSON.stringify(BASE_ITEMS));
-  }
-  saveMenu();
+  // Si Firebase no tiene menú aún, mostrar aviso (no debería pasar después del primer uso)
+  console.warn("⚠️ No hay menú en Firebase para", CURRENT_VENUE, "- Importa el JSON desde la consola de Firebase.");
+  document.getElementById('views').innerHTML = '<div style="padding:40px; text-align:center; color:#ef4444; font-weight:700;">⚠️ Menú no encontrado en Firebase.<br><small>Importa el archivo firebase_menus.json en la consola de Firebase.</small></div>';
+  return;
 }
 
       
       buildCategories();
 
-      // Si ya hay datos cargados, refrescar vistas para que aparezca el contenido en General
       if(state.selections) {
           renderNav();
           renderAllViews();
@@ -634,6 +553,7 @@ function init() {
     if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT')) {
         const data = snapshot.val();
         if(data) state = data;
+        ensureKali();
         updateCalculations(); 
         return; 
     }
@@ -645,6 +565,9 @@ function init() {
       if(!state.selections) state.selections = [];
       if(!state.common) state.common = new Array(ITEMS.length).fill(0);
       
+      // Asegurar estado kali al cargar
+      ensureKali();
+
       if(state.common.length < ITEMS.length) {
          const diff = ITEMS.length - state.common.length;
          for(let k=0; k<diff; k++) state.common.push(0);
@@ -655,12 +578,10 @@ function init() {
       
       if(Object.keys(CATEGORIES).length === 0) buildCategories();
 
-      // --- LOGICA DE FORZADO DE PESTAÑA AL ENTRAR ---
       if(isInitialLoad) {
-          state.activeTab = 0; // Forzar Balances al entrar
+          state.activeTab = 0;
           isInitialLoad = false;
       }
-      // ---------------------------------------------
 
       renderNav();
       renderAllViews();
@@ -717,6 +638,7 @@ function resetSelections() {
   state.selections = state.names.map(() => ITEMS.map(() => ({ solo: 0, shared: [] })));
   state.common = new Array(ITEMS.length).fill(0);
   state.activeTab = 0;
+  state.kali = { counts: new Array(state.names.length).fill(0), wineBottles: 0, winePrice: 0 };
 }
 
 function softReset() {
@@ -731,10 +653,9 @@ function factoryReset() {
   if(!confirm("🧨 ¿BORRAR TODO de " + CURRENT_VENUE.toUpperCase() + "?\n(Esto dejará solo a 1 participante)")) return;
   remove(ref(db, DB_PATH));
   
-  // Reseteo total dejando solo 1 participante
   state.names = ["Persona 1"];
   state.payerIdx = 0;
-  resetSelections(); // Se ajusta a la nueva longitud de 1 persona
+  resetSelections();
   
   saveData();
   renderNav();
@@ -781,12 +702,15 @@ function syncNameTab(idx, newName) {
 function setPayer(idx) {
   state.payerIdx = parseInt(idx);
   saveData();
-  renderSummaryView(); // Actualización inmediata de la vista
+  renderSummaryView();
 }
 
 function addParticipant() {
   state.names.push(`Persona ${state.names.length + 1}`);
   state.selections.push(ITEMS.map(() => ({ solo: 0, shared: [] })));
+  // Añadir contador kali para el nuevo participante
+  ensureKali();
+  state.kali.counts.push(0);
   saveData();
   switchTab(state.names.length + 2);
 }
@@ -796,6 +720,9 @@ function removeParticipant(idx) {
   if(!confirm("¿Borrar a " + state.names[idx] + "?")) return;
   state.names.splice(idx, 1);
   state.selections.splice(idx, 1);
+  // Eliminar contador kali del participante
+  ensureKali();
+  state.kali.counts.splice(idx, 1);
   if(state.payerIdx >= state.names.length) state.payerIdx = 0;
   saveData();
   switchTab(0);
@@ -933,7 +860,6 @@ function renderEditorView() {
       </div>
     `;
 
-    // Renderizar categorías
     for(const [cat, items] of Object.entries(CATEGORIES)) {
         html += `<div class="editor-section-title">${cat}</div>`;
         html += `<div class="card" style="margin-bottom:20px;">`;
@@ -965,9 +891,7 @@ function renderEditorView() {
         html += `</div>`;
     }
     
-    // Espacio final
     html += `<div style="height:50px"></div>`;
-    
     container.innerHTML = html;
 }
 
@@ -1090,6 +1014,13 @@ function renderGeneralView() {
   const container = document.getElementById('view-general');
   const openSet = UI_STATE.general || new Set();
 
+  ensureKali();
+  const bottles = state.kali.wineBottles || 0;
+  const winePrice = state.kali.winePrice || 0;
+  const totalKalis = (state.kali.counts || []).reduce((a, b) => (a || 0) + (b || 0), 0);
+  const totalWineCost = bottles * winePrice;
+  const costPerKali = (totalKalis > 0 && totalWineCost > 0) ? totalWineCost / totalKalis : 0;
+
   let html = `
     <div class="general-banner">
       <div style="font-size:20px;">🌍</div>
@@ -1100,9 +1031,53 @@ function renderGeneralView() {
     </div>
   `;
 
-  // Iterar categorías, filtrando items que NO deben verse en general
+  // --- BLOQUE VINO PARA KALI (acordeón normal) ---
+  const kaliSummaryLabel = totalWineCost > 0 ? `🍷🥤 Vino para Kali · ${totalWineCost.toFixed(2)}€` : '🍷🥤 Vino para Kali';
+  const kaliOpenAttr = (bottles > 0 || winePrice > 0) ? 'open' : '';
+  html += `
+    <div class="card">
+      <details ${kaliOpenAttr}>
+        <summary>${kaliSummaryLabel}</summary>
+        <div>
+          <div class="item-row">
+            <div class="item-info">
+              <b>Botellas de vino</b>
+              <small>Usadas para kalimotxos</small>
+            </div>
+            <div class="stepper">
+              <btn onclick="updateKaliWineBottles(-1)">-</btn>
+              <span style="color:${bottles > 0 ? 'var(--warning)' : 'inherit'}">${bottles}</span>
+              <btn onclick="updateKaliWineBottles(1)">+</btn>
+            </div>
+          </div>
+          <div class="item-row" style="gap:12px;">
+            <div class="item-info" style="flex-shrink:0;">
+              <b>Vino utilizado</b>
+              <small>Para calcular el coste</small>
+            </div>
+            <select class="select-fancy select-compact" style="min-width:0; flex:1;" onchange="updateKaliWineSelection(this.value)">
+              <option value="-1" ${(state.kali.wineItemIdx || -1) === -1 ? 'selected' : ''}>— Elige un vino —</option>
+              ${ITEMS.filter(it => /vino/i.test(it.cat) || /ardoak/i.test(it.cat)).map((it, _i) => {
+                const realIdx = ITEMS.indexOf(it);
+                return `<option value="${realIdx}" ${state.kali.wineItemIdx === realIdx ? 'selected' : ''}>${it.n} · ${it.p.toFixed(2)}€</option>`;
+              }).join('')}
+            </select>
+          </div>
+          ${totalKalis > 0 && totalWineCost > 0 ? `
+          <div class="kali-info-row">
+            <span>🧮 ${totalKalis} kali${totalKalis > 1 ? 's' : ''} en total</span>
+            <span><b>${costPerKali.toFixed(2)}€ de vino / kali</b></span>
+          </div>` : (totalKalis > 0 ? `
+          <div class="kali-info-row">
+            <span>⚠️ Introduce el precio del vino para calcular</span>
+          </div>` : '')}
+        </div>
+      </details>
+    </div>
+  `;
+
+  // Resto de categorías del menú general
   for(const [cat, items] of Object.entries(CATEGORIES)) {
-    // Filtrar items: mostrar si no tiene 'v' (legacy), si es 'all' o si es 'common'
     const validItems = items.filter(it => !it.v || it.v === 'all' || it.v === 'common');
     
     if(validItems.length === 0) continue;
@@ -1136,6 +1111,9 @@ function renderParticipantView(pIdx) {
   if(!container) return;
   const openSet = UI_STATE.paxes[pIdx] || new Set();
 
+  ensureKali();
+  const kaliCount = state.kali.counts[pIdx] || 0;
+
   let html = `
     <div class="card">
       <div class="card-header">
@@ -1154,10 +1132,31 @@ function renderParticipantView(pIdx) {
     </div>
   `;
 
+  // --- BLOQUE KALIMOTXO (acordeón normal) ---
+  html += `
+    <div class="card">
+      <details ${kaliCount > 0 ? 'open' : ''}>
+        <summary>🍷🥤 Kalimotxo${kaliCount > 0 ? ' · ' + kaliCount : ''}</summary>
+        <div>
+          <div class="item-row">
+            <div class="item-info">
+              <b>Kalimotxo</b>
+              <small>Incluye Coca-Cola · el vino se configura en General</small>
+            </div>
+            <div class="stepper">
+              <btn onclick="updateKaliCount(${pIdx}, -1)">-</btn>
+              <span style="color:${kaliCount > 0 ? 'var(--primary)' : 'inherit'}">${kaliCount}</span>
+              <btn onclick="updateKaliCount(${pIdx}, 1)">+</btn>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  `;
+
   for(const [cat, items] of Object.entries(CATEGORIES)) {
     if(cat === "🍳 Sukaldea / Cocina") continue;
     
-    // Filtrar items: mostrar si no tiene 'v', si es 'all' o si es 'pax'
     const validItems = items.filter(it => !it.v || it.v === 'all' || it.v === 'pax');
     if(validItems.length === 0) continue;
 
@@ -1261,6 +1260,31 @@ function calculateMath() {
       }
     });
   });
+
+  // --- CÁLCULO KALIMOTXO (invisible en ticket) ---
+  if(state.kali) {
+    ensureKali();
+    const totalKalis = (state.kali.counts || []).reduce((a, b) => (a || 0) + (b || 0), 0);
+    const totalWineCost = (state.kali.wineBottles || 0) * (state.kali.winePrice || 0);
+
+    if(totalKalis > 0 && totalWineCost > 0) {
+      const costPerKali = totalWineCost / totalKalis;
+      (state.kali.counts || []).forEach((kaliCount, pIdx) => {
+        if(kaliCount > 0 && pIdx < paxData.length) {
+          const myCost = kaliCount * costPerKali;
+          paxData[pIdx].consumed += myCost;
+          // En el balance se muestra como vino (sin mencionar kali)
+          paxData[pIdx].items.push({
+            desc: `${state.kali.wineBottles}x Vino (parte ${kaliCount}/${totalKalis})`,
+            cost: myCost
+          });
+        }
+      });
+      grandTotal += totalWineCost;
+      // En el ticket aparece simplemente como "Vino", fusionado con precio por botella
+      addToGlobal('kali_wine', state.kali.wineBottles, totalWineCost, 'Vino', state.kali.winePrice);
+    }
+  }
 
   const globalItemsArr = Object.values(globalItemsMap).map(i => ({
     n: i.n, q: i.q, t: i.t, p: i.p 
