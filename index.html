@@ -342,6 +342,7 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 // --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue, off, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAcmywgX6l4x_dTnmA1c_CbtAh7LfSx4vg",
@@ -355,6 +356,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+const SECRET_PIN = "Naroa es muy guapa";
+const PIN_STORAGE_KEY = "ldl_auth_ok";
 
 const ADMIN_CODE = "1525";
 
@@ -382,6 +386,33 @@ let state = {
 let UI_STATE = { general: new Set(), paxes: {} };
 
 // --- FUNCIÓN DE ARRANQUE ---
+// --- PIN CHECK ---
+window.checkPin = function() {
+  const input = document.getElementById('pin-input').value;
+  const error = document.getElementById('pin-error');
+  if (input === SECRET_PIN) {
+    localStorage.setItem(PIN_STORAGE_KEY, '1');
+    error.style.display = 'none';
+    showVenueScreen();
+  } else {
+    error.style.display = 'block';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function showVenueScreen() {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('venue-screen').style.display = 'block';
+}
+
+// Al cargar la página, comprobar si ya tiene el PIN guardado
+(function checkStoredPin() {
+  if (localStorage.getItem(PIN_STORAGE_KEY) === '1') {
+    showVenueScreen();
+  }
+})();
+
 window.startApp = function(venue) {
   CURRENT_VENUE = venue;
   DB_PATH = `gastosPro_v4_${venue}`;
@@ -392,7 +423,17 @@ window.startApp = function(venue) {
   setTimeout(() => document.getElementById('landing-page').style.opacity = '0', 50);
   setTimeout(() => document.getElementById('landing-page').style.display = 'none', 300);
 
-  init();
+  // Login anónimo automático en Firebase — sin pantalla, sin Google
+  if (auth.currentUser) {
+    init();
+  } else {
+    signInAnonymously(auth)
+      .then(() => init())
+      .catch(err => {
+        console.error("Error Firebase Auth:", err);
+        document.getElementById('views').innerHTML = '<div style="padding:40px;text-align:center;color:#ef4444;font-weight:700;">⚠️ Error de conexión. Recarga la página.</div>';
+      });
+  }
 }
 
 // --- VOLVER AL MENÚ (SIN BORRAR DATOS) ---
