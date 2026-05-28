@@ -66,6 +66,14 @@
       <h1 style="font-size:1.2rem;line-height:1;">La <span style="color:var(--text)">Dolorosa</span></h1>
     </div>
     <div class="header-actions">
+      <button id="btnHistory" class="btn-edit-toggle" onclick="openHistory()" aria-label="Ver historial">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" stroke-width="2.5"
+       stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+</button>
       <button id="btnEditMode" class="btn-edit-toggle" onclick="toggleAdminMode()" aria-label="Activar modo edición">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
@@ -95,5 +103,27 @@
 
 
   <script type="module" src="app.js"></script>
+  <!-- Overlay oscuro -->
+<div id="history-overlay" onclick="closeHistory()"></div>
+ 
+<!-- Cajón deslizante -->
+<div id="history-drawer" role="dialog" aria-label="Historial de cuentas">
+  <div class="hist-handle"></div>
+  <div class="hist-drawer-header">
+    <div>
+      <h2 class="hist-drawer-title">Historial</h2>
+      <p class="hist-drawer-sub" id="hist-venue-label"></p>
+    </div>
+    <button class="hist-close-btn" onclick="closeHistory()" aria-label="Cerrar historial">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div id="history-content"></div>
+</div>
 </body>
 </html>

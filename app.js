@@ -1,6 +1,6 @@
 // ── Firebase ──────────────────────────────────────────────
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, set, onValue, off, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, set, get, onValue, off, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
@@ -18,19 +18,16 @@ const db   = getDatabase(app);
 const auth = getAuth(app);
 const signInAnon = () => signInAnonymously(auth);
 
-// ── App ───────────────────────────────────────────────────
 // ============================================================
 //  La Dolorosa — app.js
 //  Lógica principal: estado, cálculos, renders, interacciones
 // ============================================================
 
-
 // ── Configuración ─────────────────────────────────────────
 const PIN_STORAGE_KEY = 'ldl_auth_ok';
-const PIN_HASH        = 'a7f1a8a3'; // hash de "Naroa es muy guapa"
-const ADMIN_HASH      = '7c53fae6';          // hash de "1525"
+const PIN_HASH        = 'a7f1a8a3';
+const ADMIN_HASH      = '7c53fae6';
 
-// Función de hash simple (djb2) — el PIN real nunca viaja en claro
 function hashStr(str) {
   let h = 5381;
   for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
@@ -38,29 +35,29 @@ function hashStr(str) {
 }
 
 // ── Variables dinámicas ───────────────────────────────────
-let ITEMS        = [];
-let CATEGORIES   = {};
-let DB_PATH      = '';
-let MENU_PATH    = '';
+let ITEMS         = [];
+let CATEGORIES    = {};
+let DB_PATH       = '';
+let MENU_PATH     = '';
+let HIST_PATH     = '';
 let CURRENT_VENUE = '';
-let isAdmin      = false;
+let isAdmin       = false;
 let isInitialLoad = true;
-let _saveTimer   = null;
+let _saveTimer    = null;
+let _nameTimer    = null;
 
 let state = {
-  names: ['Persona 1', 'Persona 2'],
+  names:      ['Persona 1', 'Persona 2'],
   selections: [],
-  common: [],
-  payerIdx: 0,
-  kali: { counts: [0, 0], wineBottles: 0, winePrice: 0, wineItemIdx: -1 }
+  common:     [],
+  payerIdx:   0,
+  activeTab:  0,
+  kali:       { counts: [0, 0], wineBottles: 0, winePrice: 0, wineItemIdx: -1 }
 };
-
-// ── Pestaña activa: LOCAL (no se sincroniza entre dispositivos) ──
-let localActiveTab = 0;
 
 let UI_STATE = { general: new Set(), paxes: {} };
 
-// ── Toast (reemplaza alert/confirm) ───────────────────────
+// ── Toast ─────────────────────────────────────────────────
 function toast(msg, duration = 2500) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -68,7 +65,7 @@ function toast(msg, duration = 2500) {
   setTimeout(() => el.classList.remove('show'), duration);
 }
 
-// ── Modal (reemplaza prompt/confirm) ──────────────────────
+// ── Modal ─────────────────────────────────────────────────
 function showModal({ title, msg, inputType, placeholder, confirmLabel, confirmClass, onConfirm, onCancel }) {
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-title').textContent = title;
@@ -111,7 +108,7 @@ function showModal({ title, msg, inputType, placeholder, confirmLabel, confirmCl
   input.onkeydown = (e) => { if (e.key === 'Enter') confirmBtn.click(); };
 }
 
-// ── Debounce para saveData ────────────────────────────────
+// ── Debounce saveData ─────────────────────────────────────
 function saveData() {
   if (!DB_PATH) return;
   clearTimeout(_saveTimer);
@@ -124,6 +121,158 @@ function saveMenu() {
   if (!MENU_PATH) return;
   set(ref(db, MENU_PATH), ITEMS).catch(err => console.error('saveMenu:', err));
 }
+
+// Guarda solo el array de nombres rápido (50ms) para sincronización en tiempo real
+function saveNameFast() {
+  clearTimeout(_nameTimer);
+  _nameTimer = setTimeout(() => {
+    if (!DB_PATH) return;
+    set(ref(db, DB_PATH + '/names'), state.names)
+      .catch(err => console.error('saveNames:', err));
+  }, 50);
+}
+
+// ── Historial ─────────────────────────────────────────────
+function saveHistory() {
+  if (!HIST_PATH) return;
+  const calc = calculateMath();
+  if (calc.grandTotal < 0.5) return;
+
+  const entry = {
+    ts:    Date.now(),
+    total: parseFloat(calc.grandTotal.toFixed(2)),
+    payer: state.names[state.payerIdx],
+    participants: state.names.map((name, i) => ({
+      name,
+      consumed: parseFloat(calc.balances[i].consumed.toFixed(2)),
+      items: calc.balances[i].items.map(it => ({
+        desc: it.desc,
+        cost: parseFloat(it.cost.toFixed(2))
+      }))
+    }))
+  };
+
+  set(ref(db, `${HIST_PATH}/${entry.ts}`), entry)
+    .catch(err => console.error('saveHistory:', err));
+}
+
+window.openHistory = function () {
+  document.getElementById('history-overlay').classList.add('show');
+  const drawer = document.getElementById('history-drawer');
+  drawer.classList.add('show');
+  const content = document.getElementById('history-content');
+  content.innerHTML = `<div class="hist-loading">Cargando historial…</div>`;
+
+  get(ref(db, HIST_PATH)).then(snapshot => {
+    renderHistoryContent(snapshot.val());
+  }).catch(() => {
+    content.innerHTML = `<div class="hist-loading">⚠️ Error al cargar</div>`;
+  });
+};
+
+window.closeHistory = function () {
+  document.getElementById('history-overlay').classList.remove('show');
+  document.getElementById('history-drawer').classList.remove('show');
+};
+
+function renderHistoryContent(data) {
+  const content = document.getElementById('history-content');
+
+  if (!data || Object.keys(data).length === 0) {
+    content.innerHTML = `
+      <div class="hist-empty">
+        <div style="font-size:40px;margin-bottom:8px">📭</div>
+        <p>Sin registros todavía.<br><small>Se guardan al compartir o copiar.</small></p>
+      </div>`;
+    return;
+  }
+
+  const sorted = Object.entries(data).sort((a, b) => b[0] - a[0]).slice(0, 50);
+  const count  = sorted.length;
+
+  let html = `
+    <div class="hist-toolbar">
+      <span>${count} registro${count !== 1 ? 's' : ''}</span>
+      ${isAdmin ? `<button class="hist-btn-danger" onclick="clearHistory()">🗑 Borrar todo</button>` : ''}
+    </div>`;
+
+  sorted.forEach(([key, entry]) => {
+    const date    = new Date(entry.ts);
+    const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const rowsHtml = (entry.participants || []).map(p => {
+      const isPayer   = p.name === entry.payer;
+      const netAmount = isPayer ? (entry.total - p.consumed) : p.consumed;
+      const sign      = isPayer ? '+' : '-';
+      const cls       = isPayer ? 'color-success' : 'color-danger';
+      return `
+        <div class="hist-pax-row">
+          <span class="hist-pax-name">${isPayer ? '💳 ' : ''}${p.name}</span>
+          <span class="hist-pax-amount ${cls}">${sign}${netAmount.toFixed(2)}€</span>
+        </div>`;
+    }).join('');
+
+    html += `
+      <div class="hist-entry" id="he-${key}">
+        <div class="hist-entry-header" onclick="toggleHistEntry('${key}')">
+          <div class="hist-entry-left">
+            <span class="hist-date">${dateStr} · ${timeStr}</span>
+            <span class="hist-payer-label">Pagó <b>${entry.payer}</b></span>
+          </div>
+          <div class="hist-entry-right">
+            <span class="hist-total">${entry.total.toFixed(2)}€</span>
+            ${isAdmin ? `<button class="hist-btn-x" onclick="event.stopPropagation();deleteHistEntry('${key}')">✕</button>` : ''}
+            <svg class="hist-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="hist-entry-detail" id="hd-${key}">${rowsHtml}</div>
+      </div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+window.toggleHistEntry = function (key) {
+  const detail  = document.getElementById(`hd-${key}`);
+  const entry   = document.getElementById(`he-${key}`);
+  const chevron = entry.querySelector('.hist-chevron');
+  const isOpen  = detail.classList.contains('open');
+  detail.classList.toggle('open', !isOpen);
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+};
+
+window.deleteHistEntry = function (key) {
+  showModal({
+    title: '¿Borrar registro?',
+    msg: 'Se eliminará esta entrada del historial.',
+    confirmLabel: 'Borrar',
+    confirmClass: 'modal-btn-danger',
+    onConfirm: () => {
+      remove(ref(db, `${HIST_PATH}/${key}`));
+      document.getElementById(`he-${key}`)?.remove();
+      const remaining = document.querySelectorAll('.hist-entry').length;
+      if (remaining === 0) closeHistory();
+      toast('🗑️ Registro eliminado');
+      return null;
+    }
+  });
+};
+
+window.clearHistory = function () {
+  showModal({
+    title: '🗑️ Borrar historial',
+    msg: '¿Eliminar todo el historial de este local? Esta acción no se puede deshacer.',
+    confirmLabel: 'Borrar todo',
+    confirmClass: 'modal-btn-danger',
+    onConfirm: () => {
+      remove(ref(db, HIST_PATH));
+      closeHistory();
+      toast('🗑️ Historial eliminado');
+      return null;
+    }
+  });
+};
 
 // ── PIN ───────────────────────────────────────────────────
 function showVenueScreen() {
@@ -158,6 +307,7 @@ window.startApp = function (venue) {
   CURRENT_VENUE = venue;
   DB_PATH       = `gastosPro_v4_${venue}`;
   MENU_PATH     = `menu_v4_${venue}`;
+  HIST_PATH     = `historial_v1_${venue}`;
   isInitialLoad = true;
 
   document.getElementById('app-container').style.display = 'block';
@@ -188,13 +338,13 @@ window.goBack = function () {
   document.getElementById('app-container').style.display = 'none';
 };
 
-// ── Admin (modal en lugar de prompt) ─────────────────────
+// ── Admin ─────────────────────────────────────────────────
 window.toggleAdminMode = function () {
   if (isAdmin) {
     isAdmin = false;
     document.getElementById('btnEditMode').classList.remove('active');
     document.getElementById('tab-btn-editor')?.classList.remove('visible');
-    if (localActiveTab === 99) switchTab(0);
+    if (state.activeTab === 99) switchTab(0);
     return;
   }
   showModal({
@@ -216,34 +366,20 @@ window.toggleAdminMode = function () {
   });
 };
 
-// ── Kali helpers ──────────────────────────────────────────
 // ── Normalización de Estado ───────────────────────────────
 function normalizeState() {
-  if (!state.names) state.names = ['Persona 1'];
+  if (!state.names)      state.names      = ['Persona 1'];
   if (!state.selections) state.selections = [];
-  if (!state.common) state.common = [];
-  
+  if (!state.common)     state.common     = [];
+
   const totalItems = ITEMS ? ITEMS.length : 0;
 
-  // 1. Sincronizar cantidad de arrays con la cantidad de personas
-  while (state.selections.length < state.names.length) {
-    state.selections.push([]);
-  }
+  while (state.selections.length < state.names.length) state.selections.push([]);
+  while (state.common.length < totalItems) state.common.push(0);
 
-  // 2. Sincronizar los gastos comunes con el tamaño del menú
-  while (state.common.length < totalItems) {
-    state.common.push(0);
-  }
-
-  // 3. Asegurar que cada persona tenga su hueco para cada producto del menú
   state.selections.forEach((sel, idx) => {
-    if (!sel) {
-      sel = [];
-      state.selections[idx] = sel;
-    }
-    while (sel.length < totalItems) {
-      sel.push({ solo: 0, shared: [] });
-    }
+    if (!sel) { sel = []; state.selections[idx] = sel; }
+    while (sel.length < totalItems) sel.push({ solo: 0, shared: [] });
   });
 
   ensureKali();
@@ -252,11 +388,7 @@ function normalizeState() {
 function ensureKali() {
   if (!state.kali) state.kali = { counts: [], wineBottles: 0, winePrice: 0, wineItemIdx: -1 };
   if (!state.kali.counts) state.kali.counts = [];
-  
-  // Evitamos borrar las cuentas anteriores, solo rellenamos a los nuevos participantes
-  while (state.kali.counts.length < state.names.length) {
-    state.kali.counts.push(0);
-  }
+  while (state.kali.counts.length < state.names.length) state.kali.counts.push(0);
   if (state.kali.wineItemIdx === undefined) state.kali.wineItemIdx = -1;
 }
 
@@ -267,6 +399,7 @@ function findColaIdx() {
   return idx;
 }
 
+// ── Kali ──────────────────────────────────────────────────
 window.updateKaliCount = function (pIdx, delta) {
   ensureKali();
   const prev = state.kali.counts[pIdx] || 0;
@@ -338,8 +471,6 @@ function init() {
       return;
     }
     buildCategories();
-    
-    // Si el estado ya había cargado antes, lo normalizamos ahora con el tamaño real del menú
     if (state && state.names) {
       normalizeState();
       if (state.selections.length > 0) { renderNav(); renderAllViews(); updateCalculations(); }
@@ -359,10 +490,9 @@ function init() {
     const data = snapshot.val();
     if (data) {
       state = data;
-      normalizeState(); // Magia: repara cualquier desajuste de Firebase automáticamente
-      
+      normalizeState();
       if (!Object.keys(CATEGORIES).length) buildCategories();
-      if (isInitialLoad) { localActiveTab = 0; isInitialLoad = false; }
+      if (isInitialLoad) { state.activeTab = 0; isInitialLoad = false; }
       renderNav(); renderAllViews(); updateCalculations();
     } else {
       resetSelections(); saveData(); switchTab(0);
@@ -416,7 +546,7 @@ window.addNewItem = function () {
 function resetSelections() {
   state.selections = state.names.map(() => ITEMS.map(() => ({ solo: 0, shared: [] })));
   state.common     = new Array(ITEMS.length).fill(0);
-  localActiveTab  = 0;
+  state.activeTab  = 0;
   state.kali       = { counts: new Array(state.names.length).fill(0), wineBottles: 0, winePrice: 0, wineItemIdx: -1 };
 }
 
@@ -471,18 +601,8 @@ window.updateShared = function (paxIdx, itemIdx, shareIdx, key, val) {
   saveData();
 };
 
-let _nameTimer = null;
-function saveNameFast() {
-  clearTimeout(_nameTimer);
-  _nameTimer = setTimeout(() => {
-    if (!DB_PATH) return;
-    set(ref(db, DB_PATH + '/names'), state.names)
-      .catch(err => console.error('saveNames:', err));
-  }, 50);
-}
-
-window.updateName = function (idx, newName) { saveData(); };
-
+// Nombres: syncNameTab actualiza estado + Firebase en tiempo real letra a letra
+window.updateName  = function (idx, newName) { saveData(); };
 window.syncNameTab = function (idx, newName) {
   state.names[idx] = newName || `Persona ${idx + 1}`;
   const btn = document.getElementById(`tab-btn-${idx + 3}`);
@@ -494,8 +614,8 @@ window.setPayer = function (idx) { state.payerIdx = parseInt(idx); saveData(); r
 
 window.addParticipant = function () {
   state.names.push(`Persona ${state.names.length + 1}`);
-  normalizeState(); // Sincroniza arrays e inyecta contadores automáticamente
-  saveData(); 
+  normalizeState();
+  saveData();
   switchTab(state.names.length + 2);
 };
 
@@ -528,7 +648,7 @@ function renderNav() {
   ];
   tabs.forEach(t => {
     const btn = document.createElement('button');
-    btn.className = `tab-btn ${localActiveTab === t.idx ? 'active' : ''}`;
+    btn.className = `tab-btn ${state.activeTab === t.idx ? 'active' : ''}`;
     btn.id = t.id; btn.innerText = t.label;
     btn.setAttribute('aria-label', t.label);
     btn.onclick = () => switchTab(t.idx);
@@ -537,7 +657,7 @@ function renderNav() {
 
   const btnEdit = document.createElement('button');
   btnEdit.id = 'tab-btn-editor';
-  btnEdit.className = `tab-btn tab-btn-editor ${isAdmin ? 'visible' : ''} ${localActiveTab === 99 ? 'active' : ''}`;
+  btnEdit.className = `tab-btn tab-btn-editor ${isAdmin ? 'visible' : ''} ${state.activeTab === 99 ? 'active' : ''}`;
   btnEdit.innerText = '✏️ Editor';
   btnEdit.setAttribute('aria-label', 'Editor de menú');
   btnEdit.onclick = () => switchTab(99);
@@ -545,7 +665,7 @@ function renderNav() {
 
   state.names.forEach((name, i) => {
     const btn = document.createElement('button');
-    btn.className = `tab-btn ${localActiveTab === i + 3 ? 'active' : ''}`;
+    btn.className = `tab-btn ${state.activeTab === i + 3 ? 'active' : ''}`;
     btn.id = `tab-btn-${i + 3}`; btn.innerText = name;
     btn.setAttribute('aria-label', `Ver consumo de ${name}`);
     btn.onclick = () => switchTab(i + 3);
@@ -562,7 +682,7 @@ function renderNav() {
 
 // ── Switch Tab ────────────────────────────────────────────
 window.switchTab = function switchTab(tabIdx) {
-  localActiveTab = tabIdx;
+  state.activeTab = tabIdx;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   const map = { 0: 'tab-summary', 1: 'tab-ticket', 2: 'tab-general', 99: 'tab-btn-editor' };
   const targetId = map[tabIdx] || `tab-btn-${tabIdx}`;
@@ -573,9 +693,9 @@ window.switchTab = function switchTab(tabIdx) {
   const viewId = viewMap[tabIdx] || `view-pax-${tabIdx - 3}`;
   document.getElementById(viewId)?.classList.remove('hidden');
 
-  if (tabIdx === 0) renderSummaryView();
-  if (tabIdx === 1) renderGlobalView();
-  if (tabIdx === 2) renderGeneralView();
+  if (tabIdx === 0)  renderSummaryView();
+  if (tabIdx === 1)  renderGlobalView();
+  if (tabIdx === 2)  renderGeneralView();
   if (tabIdx === 99) renderEditorView();
 
   document.getElementById('actionButtons').classList.toggle('hidden', tabIdx !== 0);
@@ -596,7 +716,7 @@ function renderAllViews() {
     container.appendChild(div);
     renderParticipantView(i);
   });
-  switchTab(localActiveTab);
+  switchTab(state.activeTab);
 }
 
 // ── Render Editor ─────────────────────────────────────────
@@ -746,11 +866,11 @@ function renderGeneralView() {
   const container = document.getElementById('view-general');
   const openSet   = UI_STATE.general || new Set();
   ensureKali();
-  const bottles   = state.kali.wineBottles || 0;
-  const winePrice = state.kali.winePrice   || 0;
-  const totalKalis = (state.kali.counts || []).reduce((a, b) => (a || 0) + (b || 0), 0);
-  const totalWineCost = bottles * winePrice;
-  const costPerKali   = (totalKalis > 0 && totalWineCost > 0) ? totalWineCost / totalKalis : 0;
+  const bottles        = state.kali.wineBottles || 0;
+  const winePrice      = state.kali.winePrice   || 0;
+  const totalKalis     = (state.kali.counts || []).reduce((a, b) => (a || 0) + (b || 0), 0);
+  const totalWineCost  = bottles * winePrice;
+  const costPerKali    = (totalKalis > 0 && totalWineCost > 0) ? totalWineCost / totalKalis : 0;
 
   let html = `
     <div class="general-banner">
@@ -972,13 +1092,12 @@ function getBillText() {
   const SEP  = '```';
   const LINE = '─────────────────────';
 
-  // Tabla de deudas en bloque monoespaciado (se ve perfecta en WhatsApp)
   let table = '';
   calc.balances.forEach((b, i) => {
     if (i === state.payerIdx) return;
     if (b.consumed > 0.05) {
-      const name  = state.names[i].padEnd(14).slice(0, 14);
-      const amt   = `${b.consumed.toFixed(2)} €`.padStart(8);
+      const name = state.names[i].padEnd(14).slice(0, 14);
+      const amt  = `${b.consumed.toFixed(2)} €`.padStart(8);
       table += `${name}  ${amt}\n`;
     }
   });
@@ -986,18 +1105,13 @@ function getBillText() {
   const payerBalance = calc.grandTotal - calc.balances[state.payerIdx].consumed;
 
   let t = '';
-  t += `📍 *${venue}*  ·  ${date}  ${time}\n`;
-  t += `\n`;
-  t += `💰 *Total:* ${calc.grandTotal.toFixed(2)} €   |   🧾 *Pagó:* ${payer}\n`;
-  t += `\n`;
+  t += `📍 *${venue}*  ·  ${date}  ${time}\n\n`;
+  t += `💰 *Total:* ${calc.grandTotal.toFixed(2)} €   |   🧾 *Pagó:* ${payer}\n\n`;
 
   if (table) {
-    t += `*Quién debe qué:*\n`;
-    t += `${SEP}\n`;
-    t += `${'Persona'.padEnd(14)}  ${'Debe'.padStart(8)}\n`;
-    t += `${LINE}\n`;
-    t += table;
-    t += `${SEP}\n`;
+    t += `*Quién debe qué:*\n${SEP}\n`;
+    t += `${'Persona'.padEnd(14)}  ${'Debe'.padStart(8)}\n${LINE}\n`;
+    t += table + `${SEP}\n`;
   }
 
   if (payerBalance > 0.05) {
@@ -1012,6 +1126,7 @@ function getBillText() {
 // ── Compartir / Copiar ────────────────────────────────────
 window.shareNative = async function () {
   const text = getBillText();
+  saveHistory();
   if (navigator.share) {
     try { await navigator.share({ title: 'La Dolorosa', text }); }
     catch (err) { if (err.name !== 'AbortError') console.error(err); }
@@ -1023,12 +1138,12 @@ window.shareNative = async function () {
 
 window.copyBill = async function () {
   const text = getBillText();
+  saveHistory();
   const btn  = document.getElementById('btnCopy');
   const orig = btn.innerHTML;
   try {
     await navigator.clipboard.writeText(text);
   } catch {
-    // fallback para navegadores sin clipboard API
     const ta = document.createElement('textarea');
     ta.value = text; document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); ta.remove();
