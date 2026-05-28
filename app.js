@@ -471,11 +471,23 @@ window.updateShared = function (paxIdx, itemIdx, shareIdx, key, val) {
   saveData();
 };
 
+let _nameTimer = null;
+function saveNameFast() {
+  clearTimeout(_nameTimer);
+  _nameTimer = setTimeout(() => {
+    if (!DB_PATH) return;
+    set(ref(db, DB_PATH + '/names'), state.names)
+      .catch(err => console.error('saveNames:', err));
+  }, 50);
+}
+
 window.updateName = function (idx, newName) { saveData(); };
+
 window.syncNameTab = function (idx, newName) {
   state.names[idx] = newName || `Persona ${idx + 1}`;
   const btn = document.getElementById(`tab-btn-${idx + 3}`);
   if (btn) btn.innerText = state.names[idx];
+  saveNameFast();
 };
 
 window.setPayer = function (idx) { state.payerIdx = parseInt(idx); saveData(); renderSummaryView(); };
