@@ -52,9 +52,11 @@ let state = {
   selections: [],
   common: [],
   payerIdx: 0,
-  activeTab: 0,
   kali: { counts: [0, 0], wineBottles: 0, winePrice: 0, wineItemIdx: -1 }
 };
+
+// ── Pestaña activa: LOCAL (no se sincroniza entre dispositivos) ──
+let localActiveTab = 0;
 
 let UI_STATE = { general: new Set(), paxes: {} };
 
@@ -192,7 +194,7 @@ window.toggleAdminMode = function () {
     isAdmin = false;
     document.getElementById('btnEditMode').classList.remove('active');
     document.getElementById('tab-btn-editor')?.classList.remove('visible');
-    if (state.activeTab === 99) switchTab(0);
+    if (localActiveTab === 99) switchTab(0);
     return;
   }
   showModal({
@@ -360,7 +362,7 @@ function init() {
       normalizeState(); // Magia: repara cualquier desajuste de Firebase automáticamente
       
       if (!Object.keys(CATEGORIES).length) buildCategories();
-      if (isInitialLoad) { state.activeTab = 0; isInitialLoad = false; }
+      if (isInitialLoad) { localActiveTab = 0; isInitialLoad = false; }
       renderNav(); renderAllViews(); updateCalculations();
     } else {
       resetSelections(); saveData(); switchTab(0);
@@ -414,7 +416,7 @@ window.addNewItem = function () {
 function resetSelections() {
   state.selections = state.names.map(() => ITEMS.map(() => ({ solo: 0, shared: [] })));
   state.common     = new Array(ITEMS.length).fill(0);
-  state.activeTab  = 0;
+  localActiveTab  = 0;
   state.kali       = { counts: new Array(state.names.length).fill(0), wineBottles: 0, winePrice: 0, wineItemIdx: -1 };
 }
 
@@ -469,10 +471,11 @@ window.updateShared = function (paxIdx, itemIdx, shareIdx, key, val) {
   saveData();
 };
 
-window.updateName = function (idx, newName) { state.names[idx] = newName; saveData(); };
+window.updateName = function (idx, newName) { saveData(); };
 window.syncNameTab = function (idx, newName) {
+  state.names[idx] = newName || `Persona ${idx + 1}`;
   const btn = document.getElementById(`tab-btn-${idx + 3}`);
-  if (btn) btn.innerText = newName || `Persona ${idx + 1}`;
+  if (btn) btn.innerText = state.names[idx];
 };
 
 window.setPayer = function (idx) { state.payerIdx = parseInt(idx); saveData(); renderSummaryView(); };
@@ -513,7 +516,7 @@ function renderNav() {
   ];
   tabs.forEach(t => {
     const btn = document.createElement('button');
-    btn.className = `tab-btn ${state.activeTab === t.idx ? 'active' : ''}`;
+    btn.className = `tab-btn ${localActiveTab === t.idx ? 'active' : ''}`;
     btn.id = t.id; btn.innerText = t.label;
     btn.setAttribute('aria-label', t.label);
     btn.onclick = () => switchTab(t.idx);
@@ -522,7 +525,7 @@ function renderNav() {
 
   const btnEdit = document.createElement('button');
   btnEdit.id = 'tab-btn-editor';
-  btnEdit.className = `tab-btn tab-btn-editor ${isAdmin ? 'visible' : ''} ${state.activeTab === 99 ? 'active' : ''}`;
+  btnEdit.className = `tab-btn tab-btn-editor ${isAdmin ? 'visible' : ''} ${localActiveTab === 99 ? 'active' : ''}`;
   btnEdit.innerText = '✏️ Editor';
   btnEdit.setAttribute('aria-label', 'Editor de menú');
   btnEdit.onclick = () => switchTab(99);
@@ -530,7 +533,7 @@ function renderNav() {
 
   state.names.forEach((name, i) => {
     const btn = document.createElement('button');
-    btn.className = `tab-btn ${state.activeTab === i + 3 ? 'active' : ''}`;
+    btn.className = `tab-btn ${localActiveTab === i + 3 ? 'active' : ''}`;
     btn.id = `tab-btn-${i + 3}`; btn.innerText = name;
     btn.setAttribute('aria-label', `Ver consumo de ${name}`);
     btn.onclick = () => switchTab(i + 3);
@@ -547,7 +550,7 @@ function renderNav() {
 
 // ── Switch Tab ────────────────────────────────────────────
 window.switchTab = function switchTab(tabIdx) {
-  state.activeTab = tabIdx;
+  localActiveTab = tabIdx;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   const map = { 0: 'tab-summary', 1: 'tab-ticket', 2: 'tab-general', 99: 'tab-btn-editor' };
   const targetId = map[tabIdx] || `tab-btn-${tabIdx}`;
@@ -581,7 +584,7 @@ function renderAllViews() {
     container.appendChild(div);
     renderParticipantView(i);
   });
-  switchTab(state.activeTab);
+  switchTab(localActiveTab);
 }
 
 // ── Render Editor ─────────────────────────────────────────
