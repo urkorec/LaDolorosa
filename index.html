@@ -3,13 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <!-- ── PWA: tema y color ─────────────────────────────────── -->
   <meta name="theme-color" content="#4f46e5">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="La Dolorosa">
+  <meta name="application-name" content="La Dolorosa">
+  <meta name="description" content="Divide la cuenta fácilmente entre amigos">
+
+  <!-- ── PWA: iconos Apple ─────────────────────────────────── -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+
+  <!-- ── PWA: favicon ──────────────────────────────────────── -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+
+  <!-- ── PWA: manifest ─────────────────────────────────────── -->
+  <link rel="manifest" href="manifest.json">
+
   <title>La Dolorosa</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-  
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -101,29 +118,40 @@
   </div>
 </div>
 
-
   <script type="module" src="app.js"></script>
+
+  <!-- ── PWA: registro del Service Worker ──────────────────── -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[SW] Registrado:', reg.scope))
+          .catch(err => console.warn('[SW] Error al registrar:', err));
+      });
+    }
+  </script>
+
   <!-- Overlay oscuro -->
-<div id="history-overlay" onclick="closeHistory()"></div>
- 
-<!-- Cajón deslizante -->
-<div id="history-drawer" role="dialog" aria-label="Historial de cuentas">
-  <div class="hist-handle"></div>
-  <div class="hist-drawer-header">
-    <div>
-      <h2 class="hist-drawer-title">Historial</h2>
-      <p class="hist-drawer-sub" id="hist-venue-label"></p>
+  <div id="history-overlay" onclick="closeHistory()"></div>
+
+  <!-- Cajón deslizante -->
+  <div id="history-drawer" role="dialog" aria-label="Historial de cuentas">
+    <div class="hist-handle"></div>
+    <div class="hist-drawer-header">
+      <div>
+        <h2 class="hist-drawer-title">Historial</h2>
+        <p class="hist-drawer-sub" id="hist-venue-label"></p>
+      </div>
+      <button class="hist-close-btn" onclick="closeHistory()" aria-label="Cerrar historial">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
-    <button class="hist-close-btn" onclick="closeHistory()" aria-label="Cerrar historial">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2.5"
-           stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
+    <div id="history-content"></div>
   </div>
-  <div id="history-content"></div>
-</div>
 </body>
 </html>
