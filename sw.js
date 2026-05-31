@@ -1,20 +1,18 @@
 // ── La Dolorosa — Service Worker ──────────────────────────────
-// Versión del caché: incrementa este número para forzar actualización
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME    = `la-dolorosa-${CACHE_VERSION}`;
 
-// Archivos del "app shell" que se cachean al instalar
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/LaDolorosa/',
+  '/LaDolorosa/index.html',
+  '/LaDolorosa/styles.css',
+  '/LaDolorosa/app.js',
+  '/LaDolorosa/manifest.json',
+  '/LaDolorosa/icons/icon-192x192.png',
+  '/LaDolorosa/icons/icon-512x512.png',
 ];
 
-// ── Instalación: pre-cachea el app shell ──────────────────────
+// ── Instalación ───────────────────────────────────────────────
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -39,44 +37,34 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: estrategia Network-First con fallback a caché ──────
-// Para Firebase (API externa) siempre va a red sin cachear.
-// Para archivos propios intenta red primero; si falla usa caché.
+// ── Fetch: Network-First con fallback a caché ─────────────────
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
-  // Peticiones a Firebase y googleapis: solo red, sin cachear
+  // Firebase y googleapis: solo red
   if (
     url.includes('firebasedatabase.app') ||
     url.includes('firebaseapp.com') ||
     url.includes('googleapis.com') ||
     url.includes('gstatic.com')
   ) {
-    return; // el navegador gestiona la petición normalmente
+    return;
   }
 
-  // Para el resto: Network-First
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // Clonamos la respuesta para guardarla en caché
-        if (
-          response &&
-          response.status === 200 &&
-          event.request.method === 'GET'
-        ) {
+        if (response && response.status === 200 && event.request.method === 'GET') {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
         return response;
       })
       .catch(() => {
-        // Sin red: devuelve desde caché
         return caches.match(event.request).then(cached => {
           if (cached) return cached;
-          // Fallback para navegación: devuelve index.html
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match('/LaDolorosa/index.html');
           }
           return new Response('Sin conexión', { status: 503 });
         });

@@ -1,13 +1,14 @@
 {
+  "id": "/LaDolorosa/",
   "name": "La Dolorosa",
   "short_name": "Dolorosa",
   "description": "Divide la cuenta fácilmente entre amigos",
-  "start_url": "/",
+  "start_url": "/LaDolorosa/",
   "display": "standalone",
   "background_color": "#0f0e17",
   "theme_color": "#4f46e5",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/LaDolorosa/",
   "lang": "es",
   "icons": [
     {
