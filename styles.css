@@ -1,10 +1,10 @@
 :root {
-  --primary: #4f46e5; --primary-light: #e0e7ff; --primary-dark: #3730a3;
-  --bg: #f8fafc; --card: #ffffff;
-  --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
-  --success: #10b981; --success-bg: #d1fae5;
-  --danger: #ef4444; --danger-bg: #fee2e2;
-  --warning: #f59e0b; --warning-bg: #fef3c7;
+  --primary: #000000; --primary-light: #e5e5e5; --primary-dark: #000000;
+  --bg: #f7f7f7; --card: #ffffff;
+  --text: #000000; --muted: #6b6b6b; --border: #dcdcdc;
+  --success: #000000; --success-bg: #f0f0f0;
+  --danger: #000000; --danger-bg: #f0f0f0;
+  --warning: #000000; --warning-bg: #ececec;
   --radius: 16px;
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
 }
@@ -85,7 +85,8 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
 .btn-edit-toggle.active { color: var(--primary); background-color: var(--primary-light); box-shadow: 0 0 0 1px var(--primary-light); }
 .total-badge { text-align: right; }
 .total-badge small { display: block; font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-.total-badge div { font-size: 1.4rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+.total-badge div#headerTotal { font-size: 1.4rem; font-weight: 800; color: var(--text); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.header-breakdown { font-size: 10px; color: var(--muted); font-weight: 700; line-height: 1.3; white-space: nowrap; }
 
 .container { padding: 15px; margin: 0 auto; max-width: 800px; }
 
@@ -104,7 +105,7 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
 }
 .tab-btn.active { background: var(--text); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transform: translateY(-1px); }
 .tab-btn-add { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-light); }
-.tab-btn-editor { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; display: none; }
+.tab-btn-editor { background: #ececec; color: #000000; border: 1px solid #b0b0b0; display: none; }
 .tab-btn-editor.visible { display: inline-flex; }
 
 .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border); }
@@ -122,7 +123,7 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
 .editor-card-item:last-child { border-bottom: none; }
 .editor-inputs-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .editor-input-row { display: flex; gap: 8px; }
-.editor-input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; width: 100%; background: #f8fafc; transition: all 0.2s; }
+.editor-input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; width: 100%; background: #f8f8f8; transition: all 0.2s; }
 .editor-input:focus { outline: none; border-color: var(--primary); background: #fff; }
 .editor-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
 .btn-delete-item { color: var(--danger); background: var(--danger-bg); border: none; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -137,7 +138,7 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
   border: 1px solid var(--border); border-radius: 12px; padding: 12px 40px 12px 16px;
   font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; width: 100%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; transition: all 0.2s ease;
 }
 .select-fancy:focus { outline: none; border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px var(--primary-light); }
@@ -148,13 +149,13 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
 
 .stepper { display: flex; align-items: center; background: var(--bg); border-radius: 10px; padding: 2px; }
 .stepper btn { width: 40px; height: 36px; border: none; background: white; border-radius: 8px; font-weight: 800; font-size: 18px; color: var(--primary); cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
-.stepper btn:active { transform: scale(0.95); background: #e0e7ff; }
+.stepper btn:active { transform: scale(0.95); background: #e5e5e5; }
 .stepper span { min-width: 30px; text-align: center; font-weight: 700; font-size: 14px; }
 
 details { border-bottom: 1px solid var(--border); transition: all 0.3s ease; }
 details:last-of-type { border-bottom: none; }
 summary { padding: 15px; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-summary:hover { background: #f8fafc; }
+summary:hover { background: #f8f8f8; }
 summary::-webkit-details-marker { display: none; }
 summary::after { content: '+'; font-size: 18px; font-weight: 400; color: var(--muted); }
 details[open] summary::after { content: '-'; color: var(--primary); }
@@ -163,11 +164,41 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .balance-container details { border: none; margin-bottom: 10px; background: transparent; }
 .balance-container summary { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0; color: var(--text) !important; }
 .balance-container details[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 1px solid var(--border); background: #fff; }
+/* Importante: quitamos el marcador "+/-" (::after) en estas filas. Al ser
+   un tercer elemento flex junto al nombre y al importe, "space-between"
+   repartía el hueco sobrante entre los tres de forma variable, así que el
+   importe grande NO quedaba en una posición fija: se movía según lo que
+   ocupara el nombre. Sin ese tercer elemento, con solo nombre + importe,
+   el importe queda siempre pegado al borde derecho, en la misma posición
+   en todas las filas, independientemente del nombre. */
+.balance-container summary::after { content: none; }
+/* Columna de nombre: puede encogerse (min-width:0) y partir palabras si
+   hace falta, para que en pantallas estrechas nunca empuje el importe. */
+.row-name { text-align: left; min-width: 0; overflow-wrap: break-word; }
 .balance-detail-list { background: #fff; border: 1px solid var(--border); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; padding: 10px 15px; font-size: 12px; color: var(--muted); }
-.balance-detail-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f1f5f9; }
+.balance-detail-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f1f1f1; }
 .balance-detail-item:last-child { border-bottom: none; }
-.is-payer { background: var(--success-bg); border-color: #bbf7d0; }
-.is-debtor { background: var(--danger-bg); border-color: #fecaca; }
+.balance-detail-item span:last-child { font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; flex-shrink: 0; }
+.is-payer { background: #f0f0f0; border-color: #c9c9c9; }
+.is-debtor { background: #ffffff; border-color: #9a9a9a; }
+
+/* Bloques de importe grande (usados en Balances, Compra y Total).
+   Ancho fijo para que todos los importes queden alineados a la misma
+   posición, sin importar la longitud del nombre o de la etiqueta
+   ("RECIBE", "DEBE"...) que tengan encima o al lado. */
+.amt-block { text-align: right; line-height: 1.15; width: 96px; flex-shrink: 0; }
+.amt-block small { font-weight: 800; font-size: 10px; letter-spacing: 0.3px; white-space: nowrap; display: block; }
+.amt-big { display: block; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+
+/* Pantallas estrechas (la mayoría de móviles): un poco más compacto para
+   que nunca falte sitio y el importe no se corte. */
+@media (max-width: 380px) {
+  .amt-block { width: 82px; }
+  .amt-big { font-size: 15px; }
+  .container { padding: 12px; }
+  header { padding: 10px 14px; }
+  .card-title, header h1 { font-size: 1.05rem; }
+}
 
 .receipt-paper { background: #fff; width: 100%; max-width: 360px; margin: 10px auto; padding: 20px; font-family: 'Courier New', Courier, monospace; color: #222; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
 .receipt-paper::after { content: ""; position: absolute; left: 0; bottom: -10px; width: 100%; height: 10px; background-image: linear-gradient(135deg, transparent 50%, #fff 50%), linear-gradient(45deg, #fff 50%, transparent 50%); background-position: top left, top right; background-size: 10px 10px; background-repeat: repeat-x; }
@@ -177,28 +208,29 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .receipt-divider { border-top: 1px dashed #222; margin: 10px 0; }
 .receipt-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
 .receipt-row span:first-child { text-align: left; padding-right: 10px; }
-.receipt-row span:last-child { text-align: right; white-space: nowrap; font-weight: 700; }
+.receipt-row span:last-child { text-align: right; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
 .receipt-total { margin-top: 15px; border-top: 2px solid #222; border-bottom: 2px solid #222; padding: 10px 0; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; }
+.receipt-total span:last-child { font-variant-numeric: tabular-nums; }
 .receipt-footer { text-align: center; margin-top: 20px; font-size: 11px; color: #555; }
 .barcode { height: 30px; background: repeating-linear-gradient(90deg, #222, #222 2px, transparent 2px, transparent 4px, #222 4px, #222 8px); margin: 15px auto; width: 80%; opacity: 0.8; }
 
 .fab-container { position: fixed; bottom: 25px; right: 25px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .fab-btn { padding: 12px 20px; border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.1s, background 0.2s; font-size: 14px; }
 .fab-btn:active { transform: scale(0.95); }
-.fab-share { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(79,70,229,0.4); }
-.fab-copy { background: var(--text); color: white; box-shadow: 0 4px 15px rgba(15,23,42,0.4); }
+.fab-share { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+.fab-copy { background: var(--text); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 
 .btn-action { width: 100%; padding: 18px; margin-top: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; transition: all 0.2s ease; border: none; }
 .btn-action:active { transform: scale(0.98); }
-.btn-reset { background: #f1f5f9; color: #475569; box-shadow: 0 2px 0 #cbd5e1; }
+.btn-reset { background: #f1f1f1; color: #333333; box-shadow: 0 2px 0 #cccccc; }
 .btn-reset:active { box-shadow: none; transform: translateY(2px); }
-.btn-factory { background: #fee2e2; color: #991b1b; box-shadow: 0 2px 0 #fecaca; margin-bottom: 60px; }
+.btn-factory { background: #ececec; color: #000000; box-shadow: 0 2px 0 #b0b0b0; margin-bottom: 60px; }
 .btn-factory:active { box-shadow: none; transform: translateY(2px); }
 .btn-delete-pax { background: var(--danger-bg); border: none; color: var(--danger); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
-.btn-delete-pax:hover { background: #fecaca; }
+.btn-delete-pax:hover { background: #dcdcdc; }
 
 .split-row { margin-top: 8px; background: #fff; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); display: flex; gap: 8px; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-.general-banner { background: var(--warning-bg); color: #92400e; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; border: 1px solid #fcd34d; display: flex; align-items: center; gap: 10px; }
+.general-banner { background: var(--warning-bg); color: #000000; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; border: 1px solid #c9c9c9; display: flex; align-items: center; gap: 10px; }
 .kali-info-row { padding: 10px 15px; background: var(--primary-light); border-top: 1px dashed var(--border); font-size: 12px; color: var(--primary-dark); display: flex; justify-content: space-between; align-items: center; }
 
 /* ── Historial ───────────────────────────────────────────── */
@@ -238,7 +270,7 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
   width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
   cursor: pointer; color: var(--muted); flex-shrink: 0; font-size: 14px;
 }
-.hist-close-btn:active { background: #cbd5e1; }
+.hist-close-btn:active { background: #cccccc; }
 
 /* Toolbar: contador + borrar todo */
 .hist-toolbar {
@@ -265,7 +297,7 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 12px; gap: 8px; cursor: pointer;
 }
-.hist-entry-header:active { background: #f8fafc; }
+.hist-entry-header:active { background: #f8f8f8; }
 
 .hist-entry-left  { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .hist-date        { font-size: 12px; font-weight: 700; color: var(--text); }
@@ -275,6 +307,7 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .hist-total {
   font-size: 15px; font-weight: 800; color: var(--primary);
   background: var(--primary-light); padding: 3px 8px; border-radius: 6px;
+  font-variant-numeric: tabular-nums;
 }
 .hist-btn-x {
   background: var(--danger-bg); color: var(--danger);
@@ -286,24 +319,34 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .hist-btn-x:active { opacity: 0.7; }
 .hist-chevron { color: var(--muted); transition: transform 0.25s ease; flex-shrink: 0; }
 
-/* Detalle expandible */
+/* Detalle expandible. La altura máxima se fija dinámicamente por JS
+   (scrollHeight) para que, aunque haya muchos participantes, se vea
+   siempre el listado completo de transacciones al desplegar. */
 .hist-entry-detail {
   max-height: 0; overflow: hidden;
   transition: max-height 0.3s ease;
 }
 .hist-entry-detail.open {
-  max-height: 500px;
   border-top: 1px solid var(--border);
 }
+
+/* Etiqueta de sección dentro del detalle, para diferenciar Cena y Compra */
+.hist-section-label {
+  padding: 8px 14px 4px;
+  font-size: 11px; font-weight: 800; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  background: #fafafa; border-top: 1px solid #f1f1f1;
+}
+.hist-entry-detail > .hist-section-label:first-child { border-top: none; }
 
 /* Fila por participante dentro del detalle */
 .hist-pax-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 7px 14px; border-bottom: 1px solid #f1f5f9; font-size: 12px;
+  padding: 7px 14px; border-bottom: 1px solid #f1f1f1; font-size: 12px;
 }
 .hist-pax-row:last-child { border-bottom: none; }
 .hist-pax-name   { font-weight: 600; color: var(--text); }
-.hist-pax-amount { font-weight: 800; }
+.hist-pax-amount { font-weight: 800; font-variant-numeric: tabular-nums; }
 
 /* Loading / empty */
 .hist-loading { padding: 40px; text-align: center; color: var(--muted); font-weight: 600; }

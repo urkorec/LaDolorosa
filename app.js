@@ -922,7 +922,7 @@ function renderCompraView() {
       balanceHtml += `
         <details>
           <summary>
-            <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
+            <div class="row-name"><b style="font-size:15px">${name}</b></div>
             <div class="amt-block"><small>${label}</small><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">
@@ -980,7 +980,7 @@ function renderSummaryView() {
       html += `
         <details>
           <summary class="${isPayer ? 'is-payer' : 'is-debtor'}">
-            <div style="text-align:left"><b style="font-size:15px">${state.names[i]}</b>${isPayer ? `<br><small style="opacity:.8">Consumido: ${b.consumed.toFixed(2)}€</small>` : ''}</div>
+            <div class="row-name"><b style="font-size:15px">${state.names[i]}</b>${isPayer ? `<br><small style="opacity:.8">Consumido: ${b.consumed.toFixed(2)}€</small>` : ''}</div>
             <div class="amt-block"><small>${label}</small><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">${detailsList}
@@ -1007,19 +1007,16 @@ function renderSummaryView() {
 // Muestra, con el mismo estilo de desplegables que Balances, quién debe
 // pagar qué a quién teniendo en cuenta tanto la cena como la compra.
 //
-// Si la cena y la compra las pagó la MISMA persona, se muestra un único
-// importe neto por persona (como antes).
-//
-// Si las pagó gente DISTINTA ("dualPayers"), entonces:
-//  - una persona que deba a los dos pagadores ve DOS números grandes,
-//    uno por cada pagador ("Debe a Fulano" / "Debe a Mengano").
-//  - un pagador que además tenga que pagar su parte al otro pagador ve
-//    a la vez el número que RECIBE y el número que DEBE, en vez de un
-//    único neto que escondería una de las dos cifras.
+// Cada fila muestra SIEMPRE un único importe neto grande (RECIBE/DEBE),
+// igual que en Balances y Compra: así el número queda en la misma
+// posición en todas las filas y la pantalla no se satura en el móvil.
+// Si la cena y la compra las pagó gente distinta y una persona debe a
+// más de un pagador (o recibe de uno y debe a otro), el desglose
+// completo ("Debe a Fulano", "Recibe de Mengano"...) se ve al desplegar
+// la fila, en balance-detail-list.
 function renderTotalView() {
   const container = document.getElementById('view-total');
   const settlement = calculateFinalSettlement();
-  const dualPayers = settlement.compraTotal > 0.005 && settlement.compraPayerIdx !== settlement.cenaPayerIdx;
 
   let html = `
     <div class="card" style="padding:15px;border-left:5px solid var(--primary)">
@@ -1039,38 +1036,19 @@ function renderTotalView() {
 
     const totalReceive = receives.reduce((a, t) => a + t.amount, 0);
     const totalOwe     = owes.reduce((a, t) => a + t.amount, 0);
+    const netAmount    = totalReceive - totalOwe;
+    const isPositive   = netAmount >= 0;
 
     const detailsList = [
       ...owes.map(t => `<div class="balance-detail-item"><span>Debe a ${state.names[t.to]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
       ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`)
     ].join('');
 
-    let chips, summaryClass;
-
-    const showSeparate = dualPayers && (owes.length > 1 || (owes.length === 1 && totalReceive > 0.005));
-
-    if (showSeparate) {
-      // Dos pagadores distintos: no neteamos, mostramos cada cifra por su lado.
-      chips = '';
-      if (totalReceive > 0.005) {
-        chips += `<div class="amt-block"><small>RECIBE</small><span class="amt-big">+${totalReceive.toFixed(2)}€</span></div>`;
-      }
-      owes.forEach(t => {
-        chips += `<div class="amt-block"><small>DEBE A ${state.names[t.to].toUpperCase()}</small><span class="amt-big">-${t.amount.toFixed(2)}€</span></div>`;
-      });
-      summaryClass = totalReceive > 0.005 ? 'is-payer' : 'is-debtor';
-    } else {
-      const netAmount  = totalReceive - totalOwe;
-      const isPositive = netAmount >= 0;
-      summaryClass = isPositive ? 'is-payer' : 'is-debtor';
-      chips = `<div class="amt-block"><small>${isPositive ? 'RECIBE' : 'DEBE'}</small><span class="amt-big">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>`;
-    }
-
     html += `
       <details>
-        <summary class="${summaryClass}">
-          <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
-          <div style="display:flex;gap:14px;align-items:center">${chips}</div>
+        <summary class="${isPositive ? 'is-payer' : 'is-debtor'}">
+          <div class="row-name"><b style="font-size:15px">${name}</b></div>
+          <div class="amt-block"><small>${isPositive ? 'RECIBE' : 'DEBE'}</small><span class="amt-big">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>
         </summary>
         <div class="balance-detail-list">${detailsList}</div>
       </details>`;
