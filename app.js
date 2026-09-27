@@ -213,6 +213,10 @@ function renderHistoryContent(data) {
     const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+    // Nota: mostramos SIEMPRE todas las transacciones del registro (sin
+    // recortar), porque el detalle se despliega con una altura calculada
+    // dinámicamente (ver toggleHistEntry), así que aunque haya muchos
+    // participantes se ven todas las filas.
     const rowsHtml = (entry.transactions && entry.transactions.length)
       ? entry.transactions.map(t => `
         <div class="hist-pax-row">
@@ -245,7 +249,20 @@ window.toggleHistEntry = function (key) {
   const entry   = document.getElementById(`he-${key}`);
   const chevron = entry.querySelector('.hist-chevron');
   const isOpen  = detail.classList.contains('open');
-  detail.classList.toggle('open', !isOpen);
+
+  if (isOpen) {
+    // Cerrar: primero fijamos la altura actual y luego la llevamos a 0
+    // para que la transición funcione partiendo de un valor real.
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+    requestAnimationFrame(() => { detail.style.maxHeight = '0px'; });
+    detail.classList.remove('open');
+  } else {
+    // Abrir: calculamos la altura real del contenido (puede tener muchas
+    // filas si hay muchos participantes) para que se vea todo, en vez de
+    // usar un max-height fijo que recortaría la lista.
+    detail.classList.add('open');
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+  }
   chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
 };
 
@@ -697,6 +714,8 @@ window.removeParticipant = function (idx) {
 function renderNav() {
   const nav = document.getElementById('navContainer');
   nav.innerHTML = '';
+  // "Total" va primero: es la pestaña que combina cena + compra y la que
+  // la gente suele querer ver nada más entrar.
   const tabs = [
     { id: 'tab-total',   label: '🧮 Total',    idx: 4 },
     { id: 'tab-summary', label: '📊 Balances', idx: 0 },
@@ -866,7 +885,7 @@ function renderCompraView() {
         <details>
           <summary>
             <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
-            <div style="text-align:right"><small style="font-weight:800;font-size:10px;">${label}</small><br><span style="font-size:18px;font-weight:800;">${symbol}${amount.toFixed(2)}€</span></div>
+            <div class="amt-block"><small>${label}</small><br><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">
             <div class="balance-detail-item"><span>Parte proporcional (${numPax} personas)</span><span>${share.toFixed(2)}€</span></div>
@@ -948,12 +967,21 @@ function renderSummaryView() {
 
 // ── Render Total (Cena + Compra combinados) ───────────────
 // Muestra, con el mismo estilo de desplegables que Balances, quién debe
-// pagar qué a quién teniendo en cuenta tanto la cena como la compra
-// (si las pagó la misma persona se suma todo; si no, se calcula aparte
-// y se netea lo que se deban entre los dos pagadores).
+// pagar qué a quién teniendo en cuenta tanto la cena como la compra.
+//
+// Si la cena y la compra las pagó la MISMA persona, se muestra un único
+// importe neto por persona (como antes).
+//
+// Si las pagó gente DISTINTA ("dualPayers"), entonces:
+//  - una persona que deba a los dos pagadores ve DOS números grandes,
+//    uno por cada pagador ("Debe a Fulano" / "Debe a Mengano").
+//  - un pagador que además tenga que pagar su parte al otro pagador ve
+//    a la vez el número que RECIBE y el número que DEBE, en vez de un
+//    único neto que escondería una de las dos cifras.
 function renderTotalView() {
   const container = document.getElementById('view-total');
   const settlement = calculateFinalSettlement();
+  const dualPayers = settlement.compraTotal > 0.005 && settlement.compraPayerIdx !== settlement.cenaPayerIdx;
 
   let html = `
     <div class="card" style="padding:15px;border-left:5px solid var(--primary)">
@@ -970,18 +998,40 @@ function renderTotalView() {
     if (!owes.length && !receives.length) return;
     any = true;
 
-    const netAmount  = receives.reduce((a, t) => a + t.amount, 0) - owes.reduce((a, t) => a + t.amount, 0);
-    const isPositive = netAmount >= 0;
+    const totalReceive = receives.reduce((a, t) => a + t.amount, 0);
+    const totalOwe     = owes.reduce((a, t) => a + t.amount, 0);
+
     const detailsList = [
       ...owes.map(t => `<div class="balance-detail-item"><span>Debe a ${state.names[t.to]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
       ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`)
     ].join('');
 
+    let chips, summaryClass;
+
+    const showSeparate = dualPayers && (owes.length > 1 || (owes.length === 1 && totalReceive > 0.005));
+
+    if (showSeparate) {
+      // Dos pagadores distintos: no neteamos, mostramos cada cifra por su lado.
+      chips = '';
+      if (totalReceive > 0.005) {
+        chips += `<div class="amt-block"><small>RECIBE</small><br><span class="amt-big color-success">+${totalReceive.toFixed(2)}€</span></div>`;
+      }
+      owes.forEach(t => {
+        chips += `<div class="amt-block"><small>DEBE A ${state.names[t.to].toUpperCase()}</small><br><span class="amt-big color-danger">-${t.amount.toFixed(2)}€</span></div>`;
+      });
+      summaryClass = totalReceive > 0.005 ? 'is-payer' : 'is-debtor';
+    } else {
+      const netAmount  = totalReceive - totalOwe;
+      const isPositive = netAmount >= 0;
+      summaryClass = isPositive ? 'is-payer' : 'is-debtor';
+      chips = `<div class="amt-block"><small>${isPositive ? 'RECIBE' : 'DEBE'}</small><br><span class="amt-big ${isPositive ? 'color-success' : 'color-danger'}">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>`;
+    }
+
     html += `
       <details>
-        <summary class="${isPositive ? 'is-payer' : 'is-debtor'}">
+        <summary class="${summaryClass}">
           <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
-          <div style="text-align:right"><small style="font-weight:800;font-size:10px;">${isPositive ? 'RECIBE' : 'DEBE'}</small><br><span style="font-size:18px;font-weight:800;">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>
+          <div style="display:flex;gap:14px;align-items:center">${chips}</div>
         </summary>
         <div class="balance-detail-list">${detailsList}</div>
       </details>`;
@@ -1249,7 +1299,8 @@ function calculateMath() {
 // y la COMPRA (con su propio pagador state.compra.payerIdx), y calcula
 // quién debe qué a quién. Si ambos gastos los pagó la misma persona, las
 // deudas hacia ella se suman en un único número. Si los pagó gente distinta,
-// se calculan por separado y se netean entre los dos pagadores.
+// se calculan por separado (cada pareja deudor→pagador es una transacción
+// independiente) para que la vista Total pueda mostrarlas sin mezclarlas.
 function calculateFinalSettlement() {
   const cena = calculateMath();
   ensureCompra();
@@ -1292,7 +1343,7 @@ function calculateFinalSettlement() {
     });
   });
 
-  return { grandTotal, cena, compraTotal, compraPayerIdx, compraShare, transactions };
+  return { grandTotal, cena, compraTotal, compraPayerIdx, cenaPayerIdx, compraShare, transactions };
 }
 
 function updateCalculations() {
