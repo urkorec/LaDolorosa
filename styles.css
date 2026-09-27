@@ -85,7 +85,7 @@ header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary
 .btn-edit-toggle.active { color: var(--primary); background-color: var(--primary-light); box-shadow: 0 0 0 1px var(--primary-light); }
 .total-badge { text-align: right; }
 .total-badge small { display: block; font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-.total-badge div { font-size: 1.4rem; font-weight: 800; color: var(--text); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.total-badge div { font-size: 1.4rem; font-weight: 800; color: var(--text); line-height: 1.1; }
 
 .container { padding: 15px; margin: 0 auto; max-width: 800px; }
 
@@ -166,14 +166,8 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .balance-detail-list { background: #fff; border: 1px solid var(--border); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; padding: 10px 15px; font-size: 12px; color: var(--muted); }
 .balance-detail-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f1f5f9; }
 .balance-detail-item:last-child { border-bottom: none; }
-.balance-detail-item span:last-child { font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; flex-shrink: 0; }
 .is-payer { background: var(--success-bg); border-color: #bbf7d0; }
 .is-debtor { background: var(--danger-bg); border-color: #fecaca; }
-
-/* Bloques de importe grande (usados en Balances, Compra y Total) */
-.amt-block { text-align: right; line-height: 1.15; min-width: 60px; }
-.amt-block small { font-weight: 800; font-size: 10px; letter-spacing: 0.3px; white-space: nowrap; }
-.amt-big { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .receipt-paper { background: #fff; width: 100%; max-width: 360px; margin: 10px auto; padding: 20px; font-family: 'Courier New', Courier, monospace; color: #222; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
 .receipt-paper::after { content: ""; position: absolute; left: 0; bottom: -10px; width: 100%; height: 10px; background-image: linear-gradient(135deg, transparent 50%, #fff 50%), linear-gradient(45deg, #fff 50%, transparent 50%); background-position: top left, top right; background-size: 10px 10px; background-repeat: repeat-x; }
@@ -183,9 +177,8 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .receipt-divider { border-top: 1px dashed #222; margin: 10px 0; }
 .receipt-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
 .receipt-row span:first-child { text-align: left; padding-right: 10px; }
-.receipt-row span:last-child { text-align: right; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+.receipt-row span:last-child { text-align: right; white-space: nowrap; font-weight: 700; }
 .receipt-total { margin-top: 15px; border-top: 2px solid #222; border-bottom: 2px solid #222; padding: 10px 0; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; }
-.receipt-total span:last-child { font-variant-numeric: tabular-nums; }
 .receipt-footer { text-align: center; margin-top: 20px; font-size: 11px; color: #555; }
 .barcode { height: 30px; background: repeating-linear-gradient(90deg, #222, #222 2px, transparent 2px, transparent 4px, #222 4px, #222 8px); margin: 15px auto; width: 80%; opacity: 0.8; }
 
@@ -282,7 +275,6 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .hist-total {
   font-size: 15px; font-weight: 800; color: var(--primary);
   background: var(--primary-light); padding: 3px 8px; border-radius: 6px;
-  font-variant-numeric: tabular-nums;
 }
 .hist-btn-x {
   background: var(--danger-bg); color: var(--danger);
@@ -294,14 +286,13 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 .hist-btn-x:active { opacity: 0.7; }
 .hist-chevron { color: var(--muted); transition: transform 0.25s ease; flex-shrink: 0; }
 
-/* Detalle expandible. La altura máxima se fija dinámicamente por JS
-   (scrollHeight) para que, aunque haya muchos participantes, se vea
-   siempre el listado completo de transacciones al desplegar. */
+/* Detalle expandible */
 .hist-entry-detail {
   max-height: 0; overflow: hidden;
   transition: max-height 0.3s ease;
 }
 .hist-entry-detail.open {
+  max-height: 500px;
   border-top: 1px solid var(--border);
 }
 
@@ -312,7 +303,7 @@ details[open] summary { background: #fafafa; border-bottom: 1px solid var(--bord
 }
 .hist-pax-row:last-child { border-bottom: none; }
 .hist-pax-name   { font-weight: 600; color: var(--text); }
-.hist-pax-amount { font-weight: 800; font-variant-numeric: tabular-nums; }
+.hist-pax-amount { font-weight: 800; }
 
 /* Loading / empty */
 .hist-loading { padding: 40px; text-align: center; color: var(--muted); font-weight: 600; }
