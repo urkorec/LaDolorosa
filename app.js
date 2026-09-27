@@ -147,14 +147,21 @@ function saveHistory() {
   const settlement = calculateFinalSettlement();
   if (settlement.grandTotal < 0.5) return;
 
+  const mapTx = (arr) => (arr || []).map(t => ({
+    from:   state.names[t.from],
+    to:     state.names[t.to],
+    amount: parseFloat(t.amount.toFixed(2))
+  }));
+
   const entry = {
     ts:    Date.now(),
     total: parseFloat(settlement.grandTotal.toFixed(2)),
-    transactions: settlement.transactions.map(t => ({
-      from:   state.names[t.from],
-      to:     state.names[t.to],
-      amount: parseFloat(t.amount.toFixed(2))
-    }))
+    // Desglose cena / compra, para poder diferenciarlos en el historial.
+    cenaTotal:   parseFloat(settlement.cena.grandTotal.toFixed(2)),
+    compraTotal: parseFloat(settlement.compraTotal.toFixed(2)),
+    cenaTransactions:   mapTx(settlement.cenaTransactions),
+    compraTransactions: mapTx(settlement.compraTransactions),
+    transactions: mapTx(settlement.transactions)
   };
 
   set(ref(db, `${HIST_PATH}/${entry.ts}`), entry)
@@ -187,6 +194,41 @@ function updateHistToolbarCount() {
   return remaining;
 }
 
+// Construye las filas de transacciones de un registro del historial.
+// Si el registro tiene desglose cena/compra (formato nuevo) y hubo
+// compra, se muestran dos bloques separados con su propia etiqueta y
+// subtotal. Si no hubo compra, o el registro es de un formato antiguo
+// sin desglose, se muestra una única lista (comportamiento anterior).
+function renderTxRows(txs) {
+  if (!txs || !txs.length) {
+    return '<div style="padding:10px;text-align:center;color:var(--muted)">Nadie debía nada</div>';
+  }
+  return txs.map(t => `
+    <div class="hist-pax-row">
+      <span class="hist-pax-name">${t.from} → ${t.to}</span>
+      <span class="hist-pax-amount color-danger">${t.amount.toFixed(2)}€</span>
+    </div>`).join('');
+}
+
+function buildHistRows(entry) {
+  const hasBreakdown = Array.isArray(entry.cenaTransactions) || Array.isArray(entry.compraTransactions);
+  if (!hasBreakdown) {
+    // Registro antiguo: sin desglose, comportamiento anterior.
+    return renderTxRows(entry.transactions);
+  }
+  const hasCompra = (entry.compraTotal || 0) > 0.005;
+  if (!hasCompra) {
+    // No hubo compra: mostramos solo la lista de la cena (sin etiquetas).
+    return renderTxRows(entry.cenaTransactions && entry.cenaTransactions.length ? entry.cenaTransactions : entry.transactions);
+  }
+  return `
+    <div class="hist-section-label">🍽️ Cena · ${(entry.cenaTotal || 0).toFixed(2)}€</div>
+    ${renderTxRows(entry.cenaTransactions)}
+    <div class="hist-section-label">🛒 Compra · ${(entry.compraTotal || 0).toFixed(2)}€</div>
+    ${renderTxRows(entry.compraTransactions)}
+  `;
+}
+
 function renderHistoryContent(data) {
   const content = document.getElementById('history-content');
 
@@ -217,13 +259,7 @@ function renderHistoryContent(data) {
     // recortar), porque el detalle se despliega con una altura calculada
     // dinámicamente (ver toggleHistEntry), así que aunque haya muchos
     // participantes se ven todas las filas.
-    const rowsHtml = (entry.transactions && entry.transactions.length)
-      ? entry.transactions.map(t => `
-        <div class="hist-pax-row">
-          <span class="hist-pax-name">${t.from} → ${t.to}</span>
-          <span class="hist-pax-amount color-danger">${t.amount.toFixed(2)}€</span>
-        </div>`).join('')
-      : '<div style="padding:10px;text-align:center;color:var(--muted)">Nadie debía nada</div>';
+    const rowsHtml = buildHistRows(entry);
 
     html += `
       <div class="hist-entry" id="he-${key}">
@@ -717,7 +753,7 @@ function renderNav() {
   // "Total" va primero: es la pestaña que combina cena + compra y la que
   // la gente suele querer ver nada más entrar.
   const tabs = [
-    { id: 'tab-total',   label: '🧮 Total',    idx: 4 },
+    { id: 'tab-total',   label: '💰 Total',    idx: 4 },
     { id: 'tab-summary', label: '📊 Balances', idx: 0 },
     { id: 'tab-ticket',  label: '🧾 Ticket',   idx: 1 },
     { id: 'tab-general', label: '🌍 General',  idx: 2 },
@@ -780,7 +816,9 @@ window.switchTab = function switchTab(tabIdx) {
   if (tabIdx === 4)  renderTotalView();
   if (tabIdx === 99) renderEditorView();
 
-  document.getElementById('actionButtons').classList.toggle('hidden', tabIdx !== 0);
+  // Los botones de Copiar / Compartir viven ahora en la pestaña Total,
+  // porque es la vista que combina cena + compra y es la que se comparte.
+  document.getElementById('actionButtons').classList.toggle('hidden', tabIdx !== 4);
 };
 
 function renderAllViews() {
@@ -832,7 +870,7 @@ function renderEditorView() {
   for (const [cat, items] of Object.entries(CATEGORIES)) {
     html += `<div class="editor-section-title">${cat}</div><div class="card" style="margin-bottom:20px;">`;
     items.forEach(item => {
-      const visColor = item.v === 'pax' ? '#dbeafe' : item.v === 'common' ? '#fef3c7' : '#f1f5f9';
+      const visColor = item.v === 'pax' ? '#e5e5e5' : item.v === 'common' ? '#d4d4d4' : '#f2f2f2';
       html += `
         <div class="editor-card-item">
           <div class="editor-inputs-group">
@@ -885,7 +923,7 @@ function renderCompraView() {
         <details>
           <summary>
             <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
-            <div class="amt-block"><small>${label}</small><br><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
+            <div class="amt-block"><small>${label}</small><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">
             <div class="balance-detail-item"><span>Parte proporcional (${numPax} personas)</span><span>${share.toFixed(2)}€</span></div>
@@ -943,7 +981,7 @@ function renderSummaryView() {
         <details>
           <summary class="${isPayer ? 'is-payer' : 'is-debtor'}">
             <div style="text-align:left"><b style="font-size:15px">${state.names[i]}</b>${isPayer ? `<br><small style="opacity:.8">Consumido: ${b.consumed.toFixed(2)}€</small>` : ''}</div>
-            <div class="amt-block"><small>${label}</small><br><span class="amt-big" style="color:${isPayer ? 'var(--success)' : 'var(--danger)'}">${symbol}${amount.toFixed(2)}€</span></div>
+            <div class="amt-block"><small>${label}</small><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">${detailsList}
             <div style="margin-top:8px;border-top:1px solid #e2e8f0;padding-top:4px;text-align:right;font-weight:700">Total: ${b.consumed.toFixed(2)}€</div>
@@ -987,6 +1025,7 @@ function renderTotalView() {
     <div class="card" style="padding:15px;border-left:5px solid var(--primary)">
       <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Total (cena + compra)</span>
       <div style="margin-top:6px;font-size:22px;font-weight:800;">${settlement.grandTotal.toFixed(2)}€</div>
+      ${settlement.compraTotal > 0.005 ? `<div style="margin-top:4px;font-size:12px;color:var(--muted);font-weight:600;">Cena ${settlement.cena.grandTotal.toFixed(2)}€ · Compra ${settlement.compraTotal.toFixed(2)}€</div>` : ''}
     </div>
     <div class="card"><div class="card-header"><span class="card-title">Quién debe a quién</span></div>
     <div class="balance-container" style="padding:15px">`;
@@ -1014,17 +1053,17 @@ function renderTotalView() {
       // Dos pagadores distintos: no neteamos, mostramos cada cifra por su lado.
       chips = '';
       if (totalReceive > 0.005) {
-        chips += `<div class="amt-block"><small>RECIBE</small><br><span class="amt-big color-success">+${totalReceive.toFixed(2)}€</span></div>`;
+        chips += `<div class="amt-block"><small>RECIBE</small><span class="amt-big">+${totalReceive.toFixed(2)}€</span></div>`;
       }
       owes.forEach(t => {
-        chips += `<div class="amt-block"><small>DEBE A ${state.names[t.to].toUpperCase()}</small><br><span class="amt-big color-danger">-${t.amount.toFixed(2)}€</span></div>`;
+        chips += `<div class="amt-block"><small>DEBE A ${state.names[t.to].toUpperCase()}</small><span class="amt-big">-${t.amount.toFixed(2)}€</span></div>`;
       });
       summaryClass = totalReceive > 0.005 ? 'is-payer' : 'is-debtor';
     } else {
       const netAmount  = totalReceive - totalOwe;
       const isPositive = netAmount >= 0;
       summaryClass = isPositive ? 'is-payer' : 'is-debtor';
-      chips = `<div class="amt-block"><small>${isPositive ? 'RECIBE' : 'DEBE'}</small><br><span class="amt-big ${isPositive ? 'color-success' : 'color-danger'}">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>`;
+      chips = `<div class="amt-block"><small>${isPositive ? 'RECIBE' : 'DEBE'}</small><span class="amt-big">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>`;
     }
 
     html += `
@@ -1301,6 +1340,10 @@ function calculateMath() {
 // deudas hacia ella se suman en un único número. Si los pagó gente distinta,
 // se calculan por separado (cada pareja deudor→pagador es una transacción
 // independiente) para que la vista Total pueda mostrarlas sin mezclarlas.
+//
+// Además, se devuelven cenaTransactions y compraTransactions por separado
+// (sin netear entre sí) para que el historial pueda diferenciar cuánto se
+// debía por la cena y cuánto por la compra.
 function calculateFinalSettlement() {
   const cena = calculateMath();
   ensureCompra();
@@ -1314,13 +1357,17 @@ function calculateFinalSettlement() {
 
   // debts[i][j] = cuánto debe la persona i a la persona j
   const debts = state.names.map(() => ({}));
+  const cenaTransactions   = [];
+  const compraTransactions = [];
 
   state.names.forEach((_, i) => {
     if (i !== cenaPayerIdx && cena.balances[i].consumed > 0.005) {
       debts[i][cenaPayerIdx] = (debts[i][cenaPayerIdx] || 0) + cena.balances[i].consumed;
+      cenaTransactions.push({ from: i, to: cenaPayerIdx, amount: cena.balances[i].consumed });
     }
     if (i !== compraPayerIdx && compraShare > 0.005) {
       debts[i][compraPayerIdx] = (debts[i][compraPayerIdx] || 0) + compraShare;
+      compraTransactions.push({ from: i, to: compraPayerIdx, amount: compraShare });
     }
   });
 
@@ -1343,12 +1390,21 @@ function calculateFinalSettlement() {
     });
   });
 
-  return { grandTotal, cena, compraTotal, compraPayerIdx, cenaPayerIdx, compraShare, transactions };
+  return { grandTotal, cena, compraTotal, compraPayerIdx, cenaPayerIdx, compraShare, transactions, cenaTransactions, compraTransactions };
 }
 
 function updateCalculations() {
   const settlement = calculateFinalSettlement();
   document.getElementById('headerTotal').innerText = settlement.grandTotal.toFixed(2) + '€';
+
+  // Desglosamos cena / compra bajo el total del header, solo cuando hay
+  // compra registrada (si no, no aporta información nueva).
+  const breakdownEl = document.getElementById('headerBreakdown');
+  if (breakdownEl) {
+    breakdownEl.innerText = settlement.compraTotal > 0.005
+      ? `Cena ${settlement.cena.grandTotal.toFixed(2)}€ · Compra ${settlement.compraTotal.toFixed(2)}€`
+      : '';
+  }
 }
 
 // ── Mensaje para compartir ────────────────────────────────
@@ -1367,6 +1423,9 @@ function getBillText() {
 
   let t = `*${venue}*\n${date} · ${time}\n\n`;
   t += `*Total: ${settlement.grandTotal.toFixed(2)} €*\n`;
+  if (settlement.compraTotal > 0.005) {
+    t += `Cena: ${settlement.cena.grandTotal.toFixed(2)} € · Compra: ${settlement.compraTotal.toFixed(2)} €\n`;
+  }
 
   if (settlement.transactions.length) {
     const nameW = Math.max(...state.names.map(n => n.length), 'De'.length, 'A'.length);
