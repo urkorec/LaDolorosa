@@ -52,12 +52,16 @@ let dragScrollBound = false;
 // cuenta sin que el resto salte de pestaña cuando alguien hace un cambio.
 let localTab = 0;
 
+// NOTA: los índices de pestaña ahora son:
+// 0 Balances, 1 Ticket, 2 General, 3 Compra, 4 Total, 99 Editor,
+// y a partir de 5 cada participante (i + 5).
 let state = {
   names:      ['Persona 1', 'Persona 2'],
   selections: [],
   common:     [],
   payerIdx:   0,
-  kali:       { counts: [0, 0], wineBottles: 0, winePrice: 0, wineItemIdx: -1 }
+  kali:       { counts: [0, 0], wineBottles: 0, winePrice: 0, wineItemIdx: -1 },
+  compra:     { total: 0, payerIdx: 0 }
 };
 
 let UI_STATE = { general: new Set(), paxes: {} };
@@ -140,20 +144,16 @@ function saveNameFast() {
 // ── Historial ─────────────────────────────────────────────
 function saveHistory() {
   if (!HIST_PATH) return;
-  const calc = calculateMath();
-  if (calc.grandTotal < 0.5) return;
+  const settlement = calculateFinalSettlement();
+  if (settlement.grandTotal < 0.5) return;
 
   const entry = {
     ts:    Date.now(),
-    total: parseFloat(calc.grandTotal.toFixed(2)),
-    payer: state.names[state.payerIdx],
-    participants: state.names.map((name, i) => ({
-      name,
-      consumed: parseFloat(calc.balances[i].consumed.toFixed(2)),
-      items: calc.balances[i].items.map(it => ({
-        desc: it.desc,
-        cost: parseFloat(it.cost.toFixed(2))
-      }))
+    total: parseFloat(settlement.grandTotal.toFixed(2)),
+    transactions: settlement.transactions.map(t => ({
+      from:   state.names[t.from],
+      to:     state.names[t.to],
+      amount: parseFloat(t.amount.toFixed(2))
     }))
   };
 
@@ -213,24 +213,19 @@ function renderHistoryContent(data) {
     const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    const rowsHtml = (entry.participants || []).map(p => {
-      const isPayer   = p.name === entry.payer;
-      const netAmount = isPayer ? (entry.total - p.consumed) : p.consumed;
-      const sign      = isPayer ? '+' : '-';
-      const cls       = isPayer ? 'color-success' : 'color-danger';
-      return `
+    const rowsHtml = (entry.transactions && entry.transactions.length)
+      ? entry.transactions.map(t => `
         <div class="hist-pax-row">
-          <span class="hist-pax-name">${isPayer ? '💳 ' : ''}${p.name}</span>
-          <span class="hist-pax-amount ${cls}">${sign}${netAmount.toFixed(2)}€</span>
-        </div>`;
-    }).join('');
+          <span class="hist-pax-name">${t.from} → ${t.to}</span>
+          <span class="hist-pax-amount color-danger">${t.amount.toFixed(2)}€</span>
+        </div>`).join('')
+      : '<div style="padding:10px;text-align:center;color:var(--muted)">Nadie debía nada</div>';
 
     html += `
       <div class="hist-entry" id="he-${key}">
         <div class="hist-entry-header" onclick="toggleHistEntry('${key}')">
           <div class="hist-entry-left">
             <span class="hist-date">${dateStr} · ${timeStr}</span>
-            <span class="hist-payer-label">Pagó <b>${entry.payer}</b></span>
           </div>
           <div class="hist-entry-right">
             <span class="hist-total">${entry.total.toFixed(2)}€</span>
@@ -324,7 +319,7 @@ window.startApp = function (venue) {
   // La pestaña activa se recuerda solo en ESTE dispositivo (localStorage),
   // nunca a través de Firebase, para que no afecte a otros usuarios.
   const storedTab = parseInt(localStorage.getItem(`ldl_tab_${venue}`), 10);
-  localTab = Number.isFinite(storedTab) ? storedTab : 0;
+  localTab = Number.isFinite(storedTab) ? storedTab : 4;
 
   document.getElementById('app-container').style.display = 'block';
   setTimeout(() => (document.getElementById('landing-page').style.opacity = '0'), 50);
@@ -360,7 +355,7 @@ window.toggleAdminMode = function () {
     isAdmin = false;
     document.getElementById('btnEditMode').classList.remove('active');
     document.getElementById('tab-btn-editor')?.classList.remove('visible');
-    if (localTab === 99) switchTab(0);
+    if (localTab === 99) switchTab(4);
     return;
   }
   showModal({
@@ -399,6 +394,7 @@ function normalizeState() {
   });
 
   ensureKali();
+  ensureCompra();
 }
 
 function ensureKali() {
@@ -408,13 +404,23 @@ function ensureKali() {
   if (state.kali.wineItemIdx === undefined) state.kali.wineItemIdx = -1;
 }
 
+// La "Compra" es un gasto (p.ej. súper) que se reparte entre TODOS los
+// participantes, igual que los gastos comunes de la pestaña General,
+// pero puede tener un pagador distinto al que pagó la cena.
+function ensureCompra() {
+  if (!state.compra) state.compra = { total: 0, payerIdx: 0 };
+  if (typeof state.compra.total !== 'number' || isNaN(state.compra.total)) state.compra.total = 0;
+  if (state.compra.payerIdx === undefined || state.compra.payerIdx === null) state.compra.payerIdx = 0;
+  if (state.compra.payerIdx >= state.names.length) state.compra.payerIdx = 0;
+}
+
 // Si la pestaña local ya no tiene sentido (p.ej. alguien borró al
 // participante que estabas viendo, o perdiste el modo admin) volvemos
 // a la pestaña de Balances en vez de mostrar datos incorrectos.
 function clampLocalTab() {
   if (localTab === 99 && !isAdmin) { localTab = 0; return; }
-  if (localTab >= 3) {
-    const pIdx = localTab - 3;
+  if (localTab >= 5) {
+    const pIdx = localTab - 5;
     if (pIdx < 0 || pIdx >= state.names.length) localTab = 0;
   }
 }
@@ -456,6 +462,22 @@ window.updateKaliWineSelection = function (itemIdx) {
   state.kali.winePrice = (idx >= 0 && ITEMS[idx]) ? ITEMS[idx].p : 0;
   saveData();
   renderGeneralView();
+  updateCalculations();
+};
+
+// ── Compra (súper) ────────────────────────────────────────
+window.updateCompraTotal = function (val) {
+  ensureCompra();
+  const num = parseFloat(val);
+  state.compra.total = (isNaN(num) || num < 0) ? 0 : num;
+  saveData();
+  updateCalculations();
+};
+
+window.setCompraPayer = function (idx) {
+  ensureCompra();
+  state.compra.payerIdx = parseInt(idx, 10);
+  saveData();
   updateCalculations();
 };
 
@@ -524,7 +546,7 @@ function init() {
       if (!Object.keys(CATEGORIES).length) buildCategories();
       renderNav(); renderAllViews(); updateCalculations();
     } else {
-      resetSelections(); saveData(); switchTab(0);
+      resetSelections(); saveData(); switchTab(4);
     }
   }, (error) => {
     console.error('Error de sincronización (cuenta):', error);
@@ -579,6 +601,7 @@ function resetSelections() {
   state.selections = state.names.map(() => ITEMS.map(() => ({ solo: 0, shared: [] })));
   state.common     = new Array(ITEMS.length).fill(0);
   state.kali       = { counts: new Array(state.names.length).fill(0), wineBottles: 0, winePrice: 0, wineItemIdx: -1 };
+  state.compra     = { total: 0, payerIdx: 0 };
 }
 
 window.softReset = function () {
@@ -586,7 +609,7 @@ window.softReset = function () {
     title: '🔄 Resetear contadores',
     msg: '¿Poner todos los contadores a cero?',
     confirmLabel: 'Resetear',
-    onConfirm: () => { resetSelections(); state.payerIdx = 0; saveData(); switchTab(0); toast('🔄 Contadores a cero'); return null; }
+    onConfirm: () => { resetSelections(); state.payerIdx = 0; saveData(); switchTab(4); toast('🔄 Contadores a cero'); return null; }
   });
 };
 
@@ -599,7 +622,7 @@ window.factoryReset = function () {
     onConfirm: () => {
       remove(ref(db, DB_PATH));
       state.names = ['Persona 1']; state.payerIdx = 0; resetSelections();
-      saveData(); renderNav(); renderAllViews(); switchTab(0);
+      saveData(); renderNav(); renderAllViews(); switchTab(4);
       toast('🧨 Todo eliminado');
       return null;
     }
@@ -636,7 +659,7 @@ window.updateShared = function (paxIdx, itemIdx, shareIdx, key, val) {
 window.updateName  = function (idx, newName) { saveData(); };
 window.syncNameTab = function (idx, newName) {
   state.names[idx] = newName || `Persona ${idx + 1}`;
-  const btn = document.getElementById(`tab-btn-${idx + 3}`);
+  const btn = document.getElementById(`tab-btn-${idx + 5}`);
   if (btn) btn.innerText = state.names[idx];
   saveNameFast();
 };
@@ -647,7 +670,7 @@ window.addParticipant = function () {
   state.names.push(`Persona ${state.names.length + 1}`);
   normalizeState();
   saveData();
-  switchTab(state.names.length + 2);
+  switchTab(state.names.length + 4);
 };
 
 window.removeParticipant = function (idx) {
@@ -662,7 +685,9 @@ window.removeParticipant = function (idx) {
       state.selections.splice(idx, 1);
       ensureKali(); state.kali.counts.splice(idx, 1);
       if (state.payerIdx >= state.names.length) state.payerIdx = 0;
-      saveData(); switchTab(0); toast('👤 Persona eliminada');
+      ensureCompra();
+      if (state.compra.payerIdx >= state.names.length) state.compra.payerIdx = 0;
+      saveData(); switchTab(4); toast('👤 Persona eliminada');
       return null;
     }
   });
@@ -673,9 +698,11 @@ function renderNav() {
   const nav = document.getElementById('navContainer');
   nav.innerHTML = '';
   const tabs = [
+    { id: 'tab-total',   label: '🧮 Total',    idx: 4 },
     { id: 'tab-summary', label: '📊 Balances', idx: 0 },
     { id: 'tab-ticket',  label: '🧾 Ticket',   idx: 1 },
     { id: 'tab-general', label: '🌍 General',  idx: 2 },
+    { id: 'tab-compra',  label: '🛒 Compra',   idx: 3 },
   ];
   tabs.forEach(t => {
     const btn = document.createElement('button');
@@ -696,10 +723,10 @@ function renderNav() {
 
   state.names.forEach((name, i) => {
     const btn = document.createElement('button');
-    btn.className = `tab-btn ${localTab === i + 3 ? 'active' : ''}`;
-    btn.id = `tab-btn-${i + 3}`; btn.innerText = name;
+    btn.className = `tab-btn ${localTab === i + 5 ? 'active' : ''}`;
+    btn.id = `tab-btn-${i + 5}`; btn.innerText = name;
     btn.setAttribute('aria-label', `Ver consumo de ${name}`);
-    btn.onclick = () => switchTab(i + 3);
+    btn.onclick = () => switchTab(i + 5);
     nav.appendChild(btn);
   });
 
@@ -718,18 +745,20 @@ window.switchTab = function switchTab(tabIdx) {
     try { localStorage.setItem(`ldl_tab_${CURRENT_VENUE}`, tabIdx); } catch (e) { /* ignore */ }
   }
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  const map = { 0: 'tab-summary', 1: 'tab-ticket', 2: 'tab-general', 99: 'tab-btn-editor' };
+  const map = { 0: 'tab-summary', 1: 'tab-ticket', 2: 'tab-general', 3: 'tab-compra', 4: 'tab-total', 99: 'tab-btn-editor' };
   const targetId = map[tabIdx] || `tab-btn-${tabIdx}`;
   document.getElementById(targetId)?.classList.add('active');
 
   document.querySelectorAll('#views > div').forEach(v => v.classList.add('hidden'));
-  const viewMap = { 0: 'view-summary', 1: 'view-global', 2: 'view-general', 99: 'view-editor' };
-  const viewId = viewMap[tabIdx] || `view-pax-${tabIdx - 3}`;
+  const viewMap = { 0: 'view-summary', 1: 'view-global', 2: 'view-general', 3: 'view-compra', 4: 'view-total', 99: 'view-editor' };
+  const viewId = viewMap[tabIdx] || `view-pax-${tabIdx - 5}`;
   document.getElementById(viewId)?.classList.remove('hidden');
 
   if (tabIdx === 0)  renderSummaryView();
   if (tabIdx === 1)  renderGlobalView();
   if (tabIdx === 2)  renderGeneralView();
+  if (tabIdx === 3)  renderCompraView();
+  if (tabIdx === 4)  renderTotalView();
   if (tabIdx === 99) renderEditorView();
 
   document.getElementById('actionButtons').classList.toggle('hidden', tabIdx !== 0);
@@ -739,7 +768,7 @@ function renderAllViews() {
   clampLocalTab();
   const container = document.getElementById('views');
   container.innerHTML = '';
-  ['view-summary', 'view-global', 'view-general', 'view-editor'].forEach((id, i) => {
+  ['view-summary', 'view-global', 'view-general', 'view-compra', 'view-total', 'view-editor'].forEach((id, i) => {
     const div = document.createElement('div');
     div.id = id;
     if (i > 0) div.classList.add('hidden');
@@ -811,7 +840,63 @@ function renderEditorView() {
   container.innerHTML = html;
 }
 
-// ── Render Summary ────────────────────────────────────────
+// ── Render Compra ─────────────────────────────────────────
+function renderCompraView() {
+  const container = document.getElementById('view-compra');
+  ensureCompra();
+
+  const numPax = state.names.length;
+  const total  = state.compra.total || 0;
+  const share  = total > 0 ? total / numPax : 0;
+
+  const payerOpts = state.names.map((n, i) =>
+    `<option value="${i}" ${i === state.compra.payerIdx ? 'selected' : ''}>${n}</option>`).join('');
+
+  let balanceHtml = '';
+  if (total > 0) {
+    balanceHtml = `
+    <div class="card"><div class="card-header"><span class="card-title">Balance de la Compra</span></div>
+      <div class="balance-container" style="padding:15px">`;
+    state.names.forEach((name, i) => {
+      const isPayer = i === state.compra.payerIdx;
+      const amount  = isPayer ? (total - share) : share;
+      const label   = isPayer ? 'RECIBE' : 'DEBE';
+      const symbol  = isPayer ? '+' : '-';
+      balanceHtml += `
+        <details>
+          <summary>
+            <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
+            <div style="text-align:right"><small style="font-weight:800;font-size:10px;">${label}</small><br><span style="font-size:18px;font-weight:800;">${symbol}${amount.toFixed(2)}€</span></div>
+          </summary>
+          <div class="balance-detail-list">
+            <div class="balance-detail-item"><span>Parte proporcional (${numPax} personas)</span><span>${share.toFixed(2)}€</span></div>
+            ${isPayer ? `<div class="balance-detail-item"><span>Total pagado en la compra</span><span>${total.toFixed(2)}€</span></div>` : ''}
+          </div>
+        </details>`;
+    });
+    balanceHtml += `</div></div>`;
+  }
+
+  container.innerHTML = `
+    <div class="general-banner">
+      <div style="font-size:20px">🛒</div>
+      <div><b>Compra del súper</b><br>Se reparte entre <b>todos</b> (${state.names.length} personas).
+      Si quien pagó la compra es distinto de quien pagó la cena, se calculará por separado; si es la misma persona, se suma todo.</div>
+    </div>
+    <div class="card" style="padding:15px;">
+      <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Importe de la compra</span>
+      <input type="number" step="0.01" min="0" class="editor-input" style="margin-top:8px;font-size:18px;padding:12px;"
+        value="${state.compra.total || ''}" placeholder="0.00" oninput="updateCompraTotal(this.value)">
+    </div>
+    <div class="card" style="padding:15px;">
+      <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">¿Quién pagó la compra?</span>
+      <select onchange="setCompraPayer(this.value)" class="select-fancy" style="width:100%;margin-top:8px;padding:10px;font-size:16px;">${payerOpts}</select>
+    </div>
+    ${balanceHtml}
+    <div style="height:30px"></div>`;
+}
+
+// ── Render Summary (solo Cena) ────────────────────────────
 function renderSummaryView() {
   const container = document.getElementById('view-summary');
   const calc = calculateMath();
@@ -820,7 +905,7 @@ function renderSummaryView() {
 
   let html = `
     <div class="card" style="padding:15px;border-left:5px solid var(--primary)">
-      <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">¿Quién pagó la cuenta?</span>
+      <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">¿Quién pagó la cena?</span>
       <select onchange="setPayer(this.value)" class="select-fancy" style="width:100%;margin-top:8px;padding:10px;font-size:16px;">${payerOpts}</select>
     </div>
     <div class="card"><div class="card-header"><span class="card-title">Balance por Persona</span></div>
@@ -838,8 +923,8 @@ function renderSummaryView() {
       html += `
         <details>
           <summary class="${isPayer ? 'is-payer' : 'is-debtor'}">
-            <div style="text-align:left"><b style="font-size:15px">${state.names[i]}</b><br><small style="opacity:.8">Consumido: ${b.consumed.toFixed(2)}€</small></div>
-            <div style="text-align:right"><small style="font-weight:800;font-size:10px;">${label}</small><br><span style="font-size:18px;font-weight:800;">${symbol}${amount.toFixed(2)}€</span></div>
+            <div style="text-align:left"><b style="font-size:15px">${state.names[i]}</b>${isPayer ? `<br><small style="opacity:.8">Consumido: ${b.consumed.toFixed(2)}€</small>` : ''}</div>
+            <div class="amt-block"><small>${label}</small><br><span class="amt-big" style="color:${isPayer ? 'var(--success)' : 'var(--danger)'}">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">${detailsList}
             <div style="margin-top:8px;border-top:1px solid #e2e8f0;padding-top:4px;text-align:right;font-weight:700">Total: ${b.consumed.toFixed(2)}€</div>
@@ -858,6 +943,55 @@ function renderSummaryView() {
       Eliminar Todas las Cuentas
     </button>
     <div style="height:30px"></div>`;
+  container.innerHTML = html;
+}
+
+// ── Render Total (Cena + Compra combinados) ───────────────
+// Muestra, con el mismo estilo de desplegables que Balances, quién debe
+// pagar qué a quién teniendo en cuenta tanto la cena como la compra
+// (si las pagó la misma persona se suma todo; si no, se calcula aparte
+// y se netea lo que se deban entre los dos pagadores).
+function renderTotalView() {
+  const container = document.getElementById('view-total');
+  const settlement = calculateFinalSettlement();
+
+  let html = `
+    <div class="card" style="padding:15px;border-left:5px solid var(--primary)">
+      <span style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Total (cena + compra)</span>
+      <div style="margin-top:6px;font-size:22px;font-weight:800;">${settlement.grandTotal.toFixed(2)}€</div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Quién debe a quién</span></div>
+    <div class="balance-container" style="padding:15px">`;
+
+  let any = false;
+  state.names.forEach((name, i) => {
+    const owes     = settlement.transactions.filter(t => t.from === i);
+    const receives = settlement.transactions.filter(t => t.to === i);
+    if (!owes.length && !receives.length) return;
+    any = true;
+
+    const netAmount  = receives.reduce((a, t) => a + t.amount, 0) - owes.reduce((a, t) => a + t.amount, 0);
+    const isPositive = netAmount >= 0;
+    const detailsList = [
+      ...owes.map(t => `<div class="balance-detail-item"><span>Debe a ${state.names[t.to]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
+      ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`)
+    ].join('');
+
+    html += `
+      <details>
+        <summary class="${isPositive ? 'is-payer' : 'is-debtor'}">
+          <div style="text-align:left"><b style="font-size:15px">${name}</b></div>
+          <div style="text-align:right"><small style="font-weight:800;font-size:10px;">${isPositive ? 'RECIBE' : 'DEBE'}</small><br><span style="font-size:18px;font-weight:800;">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>
+        </summary>
+        <div class="balance-detail-list">${detailsList}</div>
+      </details>`;
+  });
+
+  if (!any) {
+    html += `<div style="padding:20px;text-align:center;color:var(--muted)">Nadie debe nada todavía</div>`;
+  }
+
+  html += `</div></div><div style="height:30px"></div>`;
   container.innerHTML = html;
 }
 
@@ -1039,6 +1173,8 @@ function renderParticipantView(pIdx) {
 }
 
 // ── Cálculos ──────────────────────────────────────────────
+// calculateMath(): calcula el total y consumo de la CENA (selecciones,
+// gastos comunes de "General" y kalimotxos). No incluye la Compra.
 function calculateMath() {
   const numPax = state.names.length;
   let grandTotal = 0;
@@ -1109,50 +1245,91 @@ function calculateMath() {
   };
 }
 
-function updateCalculations() {
-  const calc = calculateMath();
-  document.getElementById('headerTotal').innerText = calc.grandTotal.toFixed(2) + '€';
+// calculateFinalSettlement(): combina la CENA (con su pagador state.payerIdx)
+// y la COMPRA (con su propio pagador state.compra.payerIdx), y calcula
+// quién debe qué a quién. Si ambos gastos los pagó la misma persona, las
+// deudas hacia ella se suman en un único número. Si los pagó gente distinta,
+// se calculan por separado y se netean entre los dos pagadores.
+function calculateFinalSettlement() {
+  const cena = calculateMath();
+  ensureCompra();
+
+  const numPax         = state.names.length;
+  const compraTotal    = state.compra.total || 0;
+  const compraPayerIdx = state.compra.payerIdx;
+  const cenaPayerIdx   = state.payerIdx || 0;
+  const compraShare    = compraTotal > 0 ? compraTotal / numPax : 0;
+  const grandTotal      = cena.grandTotal + compraTotal;
+
+  // debts[i][j] = cuánto debe la persona i a la persona j
+  const debts = state.names.map(() => ({}));
+
+  state.names.forEach((_, i) => {
+    if (i !== cenaPayerIdx && cena.balances[i].consumed > 0.005) {
+      debts[i][cenaPayerIdx] = (debts[i][cenaPayerIdx] || 0) + cena.balances[i].consumed;
+    }
+    if (i !== compraPayerIdx && compraShare > 0.005) {
+      debts[i][compraPayerIdx] = (debts[i][compraPayerIdx] || 0) + compraShare;
+    }
+  });
+
+  // Neteamos deudas cruzadas entre la misma pareja de personas (esto cubre
+  // el caso en que el pagador de la cena también deba su parte de la compra
+  // al pagador de la compra, y viceversa).
+  const transactions = [];
+  const visited = new Set();
+  state.names.forEach((_, i) => {
+    Object.keys(debts[i]).forEach(jStr => {
+      const j = parseInt(jStr, 10);
+      const key = i < j ? `${i}_${j}` : `${j}_${i}`;
+      if (visited.has(key)) return;
+      visited.add(key);
+      const amtIJ = debts[i][j] || 0;
+      const amtJI = (debts[j] && debts[j][i]) || 0;
+      const net = amtIJ - amtJI;
+      if (net > 0.005)       transactions.push({ from: i, to: j, amount: net });
+      else if (net < -0.005) transactions.push({ from: j, to: i, amount: -net });
+    });
+  });
+
+  return { grandTotal, cena, compraTotal, compraPayerIdx, compraShare, transactions };
 }
 
-// ── Mensaje WhatsApp ──────────────────────────────────────
+function updateCalculations() {
+  const settlement = calculateFinalSettlement();
+  document.getElementById('headerTotal').innerText = settlement.grandTotal.toFixed(2) + '€';
+}
+
+// ── Mensaje para compartir ────────────────────────────────
+// Mensaje ordenado y alineado (tabla en monoespaciado, formato que
+// WhatsApp respeta con ``` ```), pero sin emoticonos.
 function getBillText() {
-  const calc   = calculateMath();
-  const payer  = state.names[state.payerIdx];
+  const settlement = calculateFinalSettlement();
   const now    = new Date();
   const date   = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
   const time   = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const venues = { aiur: 'Club Ciclista Irunés', ekhi: 'La Salle', galarza: 'Atsegiña' };
   const venue  = venues[CURRENT_VENUE] || 'La Dolorosa';
 
-  const SEP  = '```';
-  const LINE = '─────────────────────';
+  const SEP    = '```';
+  const AMT_W  = 9; // ancho columna importe, p.ej. "123.45 €"
 
-  let table = '';
-  calc.balances.forEach((b, i) => {
-    if (i === state.payerIdx) return;
-    if (b.consumed > 0.05) {
-      const name = state.names[i].padEnd(14).slice(0, 14);
-      const amt  = `${b.consumed.toFixed(2)} €`.padStart(8);
-      table += `${name}  ${amt}\n`;
-    }
-  });
+  let t = `*${venue}*\n${date} · ${time}\n\n`;
+  t += `*Total: ${settlement.grandTotal.toFixed(2)} €*\n`;
 
-  const payerBalance = calc.grandTotal - calc.balances[state.payerIdx].consumed;
-
-  let t = '';
-  t += `📍 *${venue}*  ·  ${date}  ${time}\n\n`;
-  t += `💰 *Total:* ${calc.grandTotal.toFixed(2)} €   |   🧾 *Pagó:* ${payer}\n\n`;
-
-  if (table) {
-    t += `*Quién debe qué:*\n${SEP}\n`;
-    t += `${'Persona'.padEnd(14)}  ${'Debe'.padStart(8)}\n${LINE}\n`;
-    t += table + `${SEP}\n`;
-  }
-
-  if (payerBalance > 0.05) {
-    t += `\n✅ *${payer}* recupera *${payerBalance.toFixed(2)} €*\n`;
-  } else if (!table) {
-    t += `✅ Nadie debe nada\n`;
+  if (settlement.transactions.length) {
+    const nameW = Math.max(...state.names.map(n => n.length), 'De'.length, 'A'.length);
+    let table  = `${'De'.padEnd(nameW)}  ${'A'.padEnd(nameW)}  ${'Importe'.padStart(AMT_W)}\n`;
+    table     += `${'-'.repeat(nameW)}  ${'-'.repeat(nameW)}  ${'-'.repeat(AMT_W)}\n`;
+    settlement.transactions.forEach(tr => {
+      const from = state.names[tr.from].padEnd(nameW);
+      const to   = state.names[tr.to].padEnd(nameW);
+      const amt  = `${tr.amount.toFixed(2)} €`.padStart(AMT_W);
+      table += `${from}  ${to}  ${amt}\n`;
+    });
+    t += `\n${SEP}\n${table}${SEP}`;
+  } else {
+    t += '\nNadie debe nada';
   }
 
   return t;
