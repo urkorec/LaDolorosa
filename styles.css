@@ -405,3 +405,36 @@ details[open] summary { background: #f8f9ff; border-bottom: 1px solid var(--bord
 
 .is-debtor .amt-big,
 .is-debtor .amt-block small { color: var(--owe); }
+/* ── Optimización móvil ─────────────────────────────────── */
+html { -webkit-text-size-adjust: 100%; }
+body { min-height: 100dvh; }
+
+/* Cabecera con notch / barra de estado (PWA en iPhone) */
+:root { --header-h: calc(70px + env(safe-area-inset-top)); }
+header    { height: var(--header-h); }
+.nav-scroll { top: var(--header-h); overscroll-behavior-x: contain; }
+
+/* Zonas inferiores respetando la barra de gestos */
+#app-container { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+.fab-container { bottom: calc(25px + env(safe-area-inset-bottom)); }
+#toast         { bottom: calc(100px + env(safe-area-inset-bottom)); }
+
+/* Alturas dinámicas (evitan que la barra del navegador tape contenido) */
+#landing-page   { height: 100dvh; }
+#history-drawer { max-height: 88dvh; overscroll-behavior: contain; will-change: transform; }
+#history-overlay { will-change: opacity; }
+
+/* Sin retardo de toque y botones más cómodos */
+button, .tab-btn, .stepper btn, summary, .venue-btn { touch-action: manipulation; }
+.stepper btn { width: 44px; height: 40px; }
+
+/* Transiciones solo de lo necesario (transition: all repinta de más) */
+details { transition: none; }
+.tab-btn { transition: background-color .2s, color .2s, box-shadow .2s, transform .2s; }
+.select-fancy, .editor-input, .venue-btn, .modal-input {
+  transition-property: border-color, background-color, box-shadow, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation: none !important; }
+}
