@@ -909,29 +909,40 @@ function renderCompraView() {
   const payerOpts = state.names.map((n, i) =>
     `<option value="${i}" ${i === state.compra.payerIdx ? 'selected' : ''}>${n}</option>`).join('');
 
-  let balanceHtml = '';
+    let balanceHtml = '';
   if (total > 0) {
+    const payerName = state.names[state.compra.payerIdx];
+    const others    = state.names.filter((_, i) => i !== state.compra.payerIdx);
+    const payerGets = total - share;
+
     balanceHtml = `
     <div class="card"><div class="card-header"><span class="card-title">Balance de la Compra</span></div>
-      <div class="balance-container" style="padding:15px">`;
-    state.names.forEach((name, i) => {
-      const isPayer = i === state.compra.payerIdx;
-      const amount  = isPayer ? (total - share) : share;
-      const label   = isPayer ? 'RECIBE' : 'DEBE';
-      const symbol  = isPayer ? '+' : '-';
-      balanceHtml += `
+      <div class="balance-container" style="padding:15px">
+
         <details>
-          <summary class="${isPayer ? 'is-payer' : 'is-debtor'}">
-            <div class="row-name"><b style="font-size:15px">${name}</b></div>
-            <div class="amt-block"><small>${label}</small><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
+          <summary class="is-payer">
+            <div class="row-name"><b style="font-size:15px">${payerName}</b><br><small style="opacity:.8">Pagó ${total.toFixed(2)}€</small></div>
+            <div class="amt-block"><small>RECIBE</small><span class="amt-big">+${payerGets.toFixed(2)}€</span></div>
           </summary>
           <div class="balance-detail-list">
-            <div class="balance-detail-item"><span>Parte proporcional (${numPax} personas)</span><span>${share.toFixed(2)}€</span></div>
-            ${isPayer ? `<div class="balance-detail-item"><span>Total pagado en la compra</span><span>${total.toFixed(2)}€</span></div>` : ''}
+            <div class="balance-detail-item"><span>Total pagado en la compra</span><span>${total.toFixed(2)}€</span></div>
+            <div class="balance-detail-item"><span>Su parte (${numPax} personas)</span><span>${share.toFixed(2)}€</span></div>
           </div>
-        </details>`;
-    });
-    balanceHtml += `</div></div>`;
+        </details>
+
+        ${others.length ? `
+        <details>
+          <summary class="is-debtor">
+            <div class="row-name"><b style="font-size:15px">Participantes</b><br><small style="opacity:.8">Cada uno paga</small></div>
+            <div class="amt-block"><small>DEBE</small><span class="amt-big">-${share.toFixed(2)}€</span></div>
+          </summary>
+          <div class="balance-detail-list">
+            ${others.map(n => `<div class="balance-detail-item"><span>${n}</span><span>${share.toFixed(2)}€</span></div>`).join('')}
+          </div>
+        </details>` : ''}
+
+      </div>
+    </div>`;
   }
 
   container.innerHTML = `
@@ -1025,7 +1036,18 @@ function renderTotalView() {
     <div class="card"><div class="card-header"><span class="card-title">Quién debe a quién</span></div>
     <div class="balance-container" style="padding:15px">`;
 
-  let any = false;
+      let any = false;
+
+  // Columna de importe: solo texto de color, sin cuadrado.
+  const col = (kind, label, amount) => {
+    const sign = kind === 'recv' ? '+' : '-';
+    return `
+      <div class="amt-col ${kind}">
+        <small>${label}</small>
+        <span class="amt-num">${sign}${amount.toFixed(2)}<i>€</i></span>
+      </div>`;
+  };
+
   state.names.forEach((name, i) => {
     const owes     = settlement.transactions.filter(t => t.from === i);
     const receives = settlement.transactions.filter(t => t.to === i);
@@ -1034,38 +1056,24 @@ function renderTotalView() {
 
     const totalReceive = receives.reduce((a, t) => a + t.amount, 0);
     const totalOwe     = owes.reduce((a, t) => a + t.amount, 0);
-    const netAmount    = totalReceive - totalOwe;
-    const isPositive   = netAmount >= 0;
-
-    // Deudor con 2+ pagadores distintos: partimos el importe grande en
-    // una línea por pagador. En cualquier otro caso, un único importe neto.
-    const isSplit = owes.length >= 2;
+    const isPositive   = (totalReceive - totalOwe) >= 0;
 
     const detailsList = [
       ...owes.map(t => `<div class="balance-detail-item"><span>Debe a ${state.names[t.to]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
-      ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
-      isSplit ? `<div class="balance-detail-item" style="font-weight:700;color:var(--text)"><span>Total</span><span>${totalOwe.toFixed(2)}€</span></div>` : ''
+      ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`)
     ].join('');
 
-    const amtHtml = isSplit
-      ? `<div class="amt-block amt-split">
-           <small>DEBE</small>
-           ${owes.map(t => `
-             <div class="amt-line">
-               <span class="amt-to">${state.names[t.to]}</span>
-               <span class="amt-big">-${t.amount.toFixed(2)}€</span>
-             </div>`).join('')}
-         </div>`
-      : `<div class="amt-block">
-           <small>${isPositive ? 'RECIBE' : 'DEBE'}</small>
-           <span class="amt-big">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span>
-         </div>`;
+    // RECIBE solo aparece en quien recibe algo; DEBE solo en quien debe.
+    // Si falta uno, se deja un hueco vacío del mismo ancho para que
+    // los números queden siempre alineados entre filas.
+        const recvHtml = totalReceive > 0.005 ? col('recv', 'RECIBE', totalReceive) : '';
+    const oweHtml  = totalOwe     > 0.005 ? col('owe',  'DEBE',   totalOwe)     : '';
 
     html += `
       <details>
         <summary class="${isPositive ? 'is-payer' : 'is-debtor'}">
           <div class="row-name"><b style="font-size:15px">${name}</b></div>
-          ${amtHtml}
+          <div class="amt-pair">${recvHtml}${oweHtml}</div>
         </summary>
         <div class="balance-detail-list">${detailsList}</div>
       </details>`;
@@ -1413,28 +1421,38 @@ function getBillText() {
   const venues = { aiur: 'Club Ciclista Irunés', ekhi: 'La Salle', galarza: 'Atsegiña' };
   const venue  = venues[CURRENT_VENUE] || 'La Dolorosa';
 
-  const SEP    = '```';
-  const AMT_W  = 9; // ancho columna importe, p.ej. "123.45 €"
+  const SEP   = '```';
+  const AMT_W = 9; // ancho columna importe, p.ej. "123.45 €"
+  const nameW = Math.max(...state.names.map(n => n.length), 'De'.length, 'A'.length);
 
-  let t = `*${venue}*\n${date} · ${time}\n\n`;
-  t += `*Total: ${settlement.grandTotal.toFixed(2)} €*\n`;
-  if (settlement.compraTotal > 0.005) {
-    t += `Cena: ${settlement.cena.grandTotal.toFixed(2)} € · Compra: ${settlement.compraTotal.toFixed(2)} €\n`;
-  }
-
-  if (settlement.transactions.length) {
-    const nameW = Math.max(...state.names.map(n => n.length), 'De'.length, 'A'.length);
+  // Construye una tabla monoespaciada a partir de una lista de transacciones
+  const buildTable = (txs) => {
+    if (!txs || !txs.length) return 'Nadie debe nada';
     let table  = `${'De'.padEnd(nameW)}  ${'A'.padEnd(nameW)}  ${'Importe'.padStart(AMT_W)}\n`;
     table     += `${'-'.repeat(nameW)}  ${'-'.repeat(nameW)}  ${'-'.repeat(AMT_W)}\n`;
-    settlement.transactions.forEach(tr => {
+    txs.forEach(tr => {
       const from = state.names[tr.from].padEnd(nameW);
       const to   = state.names[tr.to].padEnd(nameW);
       const amt  = `${tr.amount.toFixed(2)} €`.padStart(AMT_W);
       table += `${from}  ${to}  ${amt}\n`;
     });
-    t += `\n${SEP}\n${table}${SEP}`;
+    return `${SEP}\n${table}${SEP}`;
+  };
+
+  const hasCompra = settlement.compraTotal > 0.005;
+
+  let t = `*${venue}*\n${date} · ${time}\n\n`;
+  t += `*Total: ${settlement.grandTotal.toFixed(2)} €*\n`;
+
+  if (hasCompra) {
+    // Dos listas separadas: Cena y Compra
+    t += `\n*🍽️ Cena · ${settlement.cena.grandTotal.toFixed(2)} €*\n`;
+    t += buildTable(settlement.cenaTransactions);
+    t += `\n\n*🛒 Compra · ${settlement.compraTotal.toFixed(2)} €*\n`;
+    t += buildTable(settlement.compraTransactions);
   } else {
-    t += '\nNadie debe nada';
+    // Sin compra: una sola lista, como antes
+    t += `\n${buildTable(settlement.transactions)}`;
   }
 
   return t;

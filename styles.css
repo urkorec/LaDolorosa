@@ -370,3 +370,38 @@ details[open] summary { background: #f8f9ff; border-bottom: 1px solid var(--bord
 
 .color-success { color: var(--success); }
 .color-danger  { color: var(--danger); }
+/* ── Total: importes Recibe / Debe (solo números de color) ── */
+.balance-container summary { gap: 10px; }
+.row-name { flex: 1; }
+
+.amt-pair { display: flex; gap: 14px; flex-shrink: 0; }
+
+.amt-col { width: 78px; text-align: right; line-height: 1.15; }
+.amt-col small {
+  display: block; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.5px; margin-bottom: 2px;
+}
+.amt-col .amt-num {
+  display: block; font-size: 19px; font-weight: 800;
+  letter-spacing: -0.3px; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.amt-col .amt-num i {
+  font-style: normal; font-size: 12px; font-weight: 700;
+  margin-left: 1px; opacity: 0.75;
+}
+
+.amt-col.recv { color: var(--success); }
+.amt-col.owe  { color: var(--owe); }
+
+@media (max-width: 380px) {
+  .amt-pair { gap: 8px; }
+  .amt-col { width: 64px; }
+  .amt-col .amt-num { font-size: 16px; }
+  .amt-col .amt-num i { font-size: 10px; }
+}
+/* ── Rojo intermedio compartido (Total y Balances) ───────── */
+:root { --owe: #e04c52; }  /* punto medio entre #e5737f y #dc2626 */
+
+.is-debtor .amt-big,
+.is-debtor .amt-block small { color: var(--owe); }
