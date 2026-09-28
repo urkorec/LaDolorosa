@@ -870,7 +870,7 @@ function renderEditorView() {
   for (const [cat, items] of Object.entries(CATEGORIES)) {
     html += `<div class="editor-section-title">${cat}</div><div class="card" style="margin-bottom:20px;">`;
     items.forEach(item => {
-      const visColor = item.v === 'pax' ? '#e5e5e5' : item.v === 'common' ? '#d4d4d4' : '#f2f2f2';
+      const visColor = item.v === 'pax' ? '#e0e7ff' : item.v === 'common' ? '#fef3c7' : '#f3f4f8';
       html += `
         <div class="editor-card-item">
           <div class="editor-inputs-group">
@@ -921,7 +921,7 @@ function renderCompraView() {
       const symbol  = isPayer ? '+' : '-';
       balanceHtml += `
         <details>
-          <summary>
+          <summary class="${isPayer ? 'is-payer' : 'is-debtor'}">
             <div class="row-name"><b style="font-size:15px">${name}</b></div>
             <div class="amt-block"><small>${label}</small><span class="amt-big">${symbol}${amount.toFixed(2)}€</span></div>
           </summary>
@@ -1007,13 +1007,11 @@ function renderSummaryView() {
 // Muestra, con el mismo estilo de desplegables que Balances, quién debe
 // pagar qué a quién teniendo en cuenta tanto la cena como la compra.
 //
-// Cada fila muestra SIEMPRE un único importe neto grande (RECIBE/DEBE),
-// igual que en Balances y Compra: así el número queda en la misma
-// posición en todas las filas y la pantalla no se satura en el móvil.
-// Si la cena y la compra las pagó gente distinta y una persona debe a
-// más de un pagador (o recibe de uno y debe a otro), el desglose
-// completo ("Debe a Fulano", "Recibe de Mengano"...) se ve al desplegar
-// la fila, en balance-detail-list.
+// Por defecto cada fila muestra un único importe neto grande (RECIBE/DEBE),
+// igual que en Balances y Compra. Si una persona debe a DOS o más pagadores
+// distintos, el importe grande se parte en una línea compacta por pagador
+// (nombre pequeño + importe), sin recargar la pantalla. El desglose completo
+// sigue disponible al desplegar la fila (balance-detail-list).
 function renderTotalView() {
   const container = document.getElementById('view-total');
   const settlement = calculateFinalSettlement();
@@ -1039,16 +1037,35 @@ function renderTotalView() {
     const netAmount    = totalReceive - totalOwe;
     const isPositive   = netAmount >= 0;
 
+    // Deudor con 2+ pagadores distintos: partimos el importe grande en
+    // una línea por pagador. En cualquier otro caso, un único importe neto.
+    const isSplit = owes.length >= 2;
+
     const detailsList = [
       ...owes.map(t => `<div class="balance-detail-item"><span>Debe a ${state.names[t.to]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
-      ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`)
+      ...receives.map(t => `<div class="balance-detail-item"><span>Recibe de ${state.names[t.from]}</span><span>${t.amount.toFixed(2)}€</span></div>`),
+      isSplit ? `<div class="balance-detail-item" style="font-weight:700;color:var(--text)"><span>Total</span><span>${totalOwe.toFixed(2)}€</span></div>` : ''
     ].join('');
+
+    const amtHtml = isSplit
+      ? `<div class="amt-block amt-split">
+           <small>DEBE</small>
+           ${owes.map(t => `
+             <div class="amt-line">
+               <span class="amt-to">${state.names[t.to]}</span>
+               <span class="amt-big">-${t.amount.toFixed(2)}€</span>
+             </div>`).join('')}
+         </div>`
+      : `<div class="amt-block">
+           <small>${isPositive ? 'RECIBE' : 'DEBE'}</small>
+           <span class="amt-big">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span>
+         </div>`;
 
     html += `
       <details>
         <summary class="${isPositive ? 'is-payer' : 'is-debtor'}">
           <div class="row-name"><b style="font-size:15px">${name}</b></div>
-          <div class="amt-block"><small>${isPositive ? 'RECIBE' : 'DEBE'}</small><span class="amt-big">${isPositive ? '+' : '-'}${Math.abs(netAmount).toFixed(2)}€</span></div>
+          ${amtHtml}
         </summary>
         <div class="balance-detail-list">${detailsList}</div>
       </details>`;
